@@ -1,5 +1,5 @@
 var restify = require('restify'),
-	fakesome = require('./node_modules/fakesome/fakesome.js'),
+	fakesome = require('fakesome'),
 	server = restify.createServer({
 		name: 'TestServer',
 		version: '0.0.1'
@@ -27,30 +27,30 @@ server.use(restify.CORS())
 
 
 /*
-map.forEach(function (item) {
+ map.forEach(function (item) {
 
-	server.get(baseURL + '/' + item.url, function (req, res, next) {
+ server.get(baseURL + '/' + item.url, function (req, res, next) {
 
 
-		var success = item.queries.some(function (query) {
+ var success = item.queries.some(function (query) {
 
-				if (checkEquality(query.query, req.query)) {
-					res.send(require('./testdata/' + query.file))
-					return true
-				}
+ if (checkEquality(query.query, req.query)) {
+ res.send(require('./testdata/' + query.file))
+ return true
+ }
 
-				return false
-			}),
-			errorString = 'No data for the query ' +
-				JSON.stringify(req.query) + ' available'
+ return false
+ }),
+ errorString = 'No data for the query ' +
+ JSON.stringify(req.query) + ' available'
 
-		if (!success)
-			return next(new restify.ResourceNotFoundError(errorString))
-		else
-			return next()
-	})
-})
-*/
+ if (!success)
+ return next(new restify.ResourceNotFoundError(errorString))
+ else
+ return next()
+ })
+ })
+ */
 
 
 server.get('/simterm', function (req, res, next) {
@@ -119,16 +119,10 @@ server.get('/simterm', function (req, res, next) {
 		"term": "word()",
 		"associations": fakesome.array(100).object({
 			time: "2013-10-10T22:00",
-			associations: [
-				{
-					name: "Hana",
-					value: "0.4"
-				},
-				{
-					name: "Hasso",
-					value: "0.2"
-				}
-			]
+			terms: fakesome.array(10).object({
+				name: 'element(["hasso", "hana", "walldorf", "database", "in-memory"])',
+				value: "float(0, 1)"
+			})
 		})
 	})
 

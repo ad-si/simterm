@@ -7,17 +7,39 @@
 		width, height,
 		color,
 		n = 20, // number of layers
-		m = 200, // number of samples per layer
-		stack = d3.layout.stack().offset("wiggle")
-		/*layers0 = stack(d3.range(n).map(function () {
-			return bumpLayer(m)
-		})),
-		layers1 = stack(d3.range(n).map(function () {
-			return bumpLayer(m)
-		}))*/
+		m = 200 // number of samples per layer
 
 
-	function renderStreamGraph(data){
+	// Inspired by Lee Byron's test data generator.
+	function bumpLayer(n) {
+
+		function bump(a) {
+
+			var x = 1 / (.1 + Math.random()),
+				y = 2 * Math.random() - .5,
+				z = 10 / (.1 + Math.random())
+
+			for (var i = 0; i < n; i++) {
+
+				var w = (i / n - y) * z
+
+				a[i] += x * Math.exp(-w * w)
+			}
+		}
+
+		var a = [],
+			i
+
+		for (i = 0; i < n; ++i) a[i] = 0
+
+		for (i = 0; i < 5; ++i) bump(a)
+
+		return a.map(function (d, i) {
+			return {x: i, y: Math.max(0, d)}
+		})
+	}
+
+	function renderStreamGraph(data) {
 
 
 		width = 960
@@ -86,47 +108,52 @@
 				.duration(2500)
 				.attr("d", area)
 		}
-
-		// Inspired by Lee Byron's test data generator.
-		function bumpLayer(n) {
-
-			function bump(a) {
-
-				var x = 1 / (.1 + Math.random()),
-					y = 2 * Math.random() - .5,
-					z = 10 / (.1 + Math.random())
-
-				for (var i = 0; i < n; i++) {
-
-					var w = (i / n - y) * z
-
-					a[i] += x * Math.exp(-w * w)
-				}
-			}
-
-			var a = [],
-				i
-
-			for (i = 0; i < n; ++i) a[i] = 0
-
-			for (i = 0; i < 5; ++i) bump(a)
-
-			console.log(a)
-
-			return a.map(function (d, i) {
-				return {x: i, y: Math.max(0, d)}
-			})
-		}
 	}
 
+	console.log(bumpLayer(100))
+/*
 	$.ajax({
 		url: 'http://localhost:1234/simterm',
-		success: function(data){
+		success: function (data) {
+
+			function processData(data){
+
+
+				data.associations.forEach(function (assoc) {
+					assoc.terms = assoc.terms.map(function (d, i) {
+						return {
+							x: i,
+							y: d.value
+						}
+					})
+				})
+
+				return data
+			}
+
+
+			var stack = d3.layout.stack().offset("wiggle"),
+				layers0 = stack(
+					d3
+						.range(n)
+						.map(function () {
+							return processData(data)
+						})
+				),
+				layers1 = stack(
+					d3
+						.range(n)
+						.map(function () {
+							return processData(data)
+						})
+				)
+
 			console.log(data)
+
 		},
-		error: function(data){
+		error: function (data) {
 			console.error(data)
 		}
 
-	})
+	})*/
 }()
