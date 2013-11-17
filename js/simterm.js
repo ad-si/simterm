@@ -10,7 +10,6 @@
 		m = 200 // number of samples per layer
 
 
-	// Inspired by Lee Byron's test data generator.
 	function bumpLayer(n) {
 
 		function bump(a) {
@@ -110,8 +109,8 @@
 		}
 	}
 
-	console.log(bumpLayer(100))
-/*
+	//console.log(bumpLayer(100))
+
 	$.ajax({
 		url: 'http://localhost:1234/simterm',
 		success: function (data) {
@@ -148,12 +147,12 @@
 						})
 				)
 
-			console.log(data)
+			//console.log(data)
 
 		},
 		error: function (data) {
 			console.error(data)
 		}
 
-	})*/
+	})
 }()

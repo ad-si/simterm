@@ -87,43 +87,21 @@ server.get('/simterm', function (req, res, next) {
 	}
 
 
-	var test = {
-		"term": "SAP",
-		"associations": {
-			"2013-10-10T22:00": [
-				{
-					name: "Hana",
-					value: "0.4"
-				},
-				{
-					name: "Hasso",
-					value: "0.2"
-				}
-			],
-
-			"2013-10-11T22:00": [
-				{
-					name: "Hana",
-					value: "0.4"
-				},
-				{
-					name: "Hasso",
-					value: "0.2"
-				}
-
-			]
-		}
-	}
-
-	test = fakesome.object({
+	var	test = fakesome.object({
 		"term": "word()",
 		"associations": fakesome.array(100).object({
-			time: "2013-10-10T22:00",
-			terms: fakesome.array(10).object({
-				name: 'element(["hasso", "hana", "walldorf", "database", "in-memory"])',
-				value: "float(0, 1)"
-			})
+			time: "date()",
+			terms: function(){
+				return fakesome.array(5).object({
+					name: 'unique(true).element(["hasso", "hana", "walldorf", "database", "in-memory"])',
+					value: "float(0, 1)"
+				})
+			}
 		})
+	})
+
+	test.associations.sort(function(a, b){
+		return a.time - b.time
 	})
 
 	res.send(test)
