@@ -55,6 +55,8 @@ server.use(restify.CORS())
 
 server.get('/simterm', function (req, res, next) {
 
+	var counter
+
 	function bumpLayer(n) {
 
 		function bump(a) {
@@ -86,6 +88,24 @@ server.get('/simterm', function (req, res, next) {
 		})
 	}
 
+	counter = 0
+
+	function getTerm(){
+
+		var reset = false
+
+		if(counter % 5 == 0)
+			reset = true
+
+		var value = fakesome
+			.unique(reset)
+			.element(["hasso", "hana", "walldorf", "database", "in-memory"])
+
+		counter++
+
+		return value
+	}
+
 
 	var	test = fakesome.object({
 		"term": "word()",
@@ -93,7 +113,9 @@ server.get('/simterm', function (req, res, next) {
 			time: "date()",
 			terms: function(){
 				return fakesome.array(5).object({
-					name: 'unique(true).element(["hasso", "hana", "walldorf", "database", "in-memory"])',
+					name: function(){
+						return getTerm()
+					},
 					value: "float(0, 1)"
 				})
 			}
