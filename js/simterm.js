@@ -6,8 +6,8 @@
 		x,
 		width, height,
 		color,
-		n = 20, // number of layers
-		m = 200 // number of samples per layer
+		numberOfTerms = 5,
+		numberOfSamples = 200
 
 
 	function bumpLayer(n) {
@@ -41,13 +41,31 @@
 	function renderStreamGraph(data) {
 
 
+		//console.log(data)
+
+		var stack = d3.layout.stack().offset("wiggle"),
+			layers0 = stack(
+				d3
+					.range(numberOfTerms)
+					.map(function (d) {
+						return processData(d)
+					})
+			),
+			layers1 = stack(
+				d3
+					.range(numberOfTerms)
+					.map(function () {
+						return processData(data)
+					})
+			)
+
 		width = 960
 		height = 500
 
 		x = d3
 			.scale
 			.linear()
-			.domain([0, m - 1])
+			.domain([0, numberOfSamples - 1])
 			.range([0, width])
 
 		y = d3
@@ -107,6 +125,25 @@
 				.duration(2500)
 				.attr("d", area)
 		}
+
+
+		function processData(data) {
+
+
+			data.associations.forEach(function (assoc) {
+
+				//console.log(assoc.terms)
+
+				assoc.terms = assoc.terms.map(function (d, i) {
+					return {
+						x: i,
+						y: d.value
+					}
+				})
+			})
+
+			return data
+		}
 	}
 
 	//console.log(bumpLayer(100))
@@ -115,39 +152,9 @@
 		url: 'http://localhost:1234/simterm',
 		success: function (data) {
 
-			function processData(data){
+			renderStreamGraph(data)
 
-
-				data.associations.forEach(function (assoc) {
-					assoc.terms = assoc.terms.map(function (d, i) {
-						return {
-							x: i,
-							y: d.value
-						}
-					})
-				})
-
-				return data
-			}
-
-
-			var stack = d3.layout.stack().offset("wiggle"),
-				layers0 = stack(
-					d3
-						.range(n)
-						.map(function () {
-							return processData(data)
-						})
-				),
-				layers1 = stack(
-					d3
-						.range(n)
-						.map(function () {
-							return processData(data)
-						})
-				)
-
-			//console.log(data)
+			//console.log(processData(data))
 
 		},
 		error: function (data) {
