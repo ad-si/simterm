@@ -129,16 +129,17 @@
 
 		function processData(data) {
 
+			function processData(data){
 
-			data.associations.forEach(function (assoc) {
+				data.associations.forEach(function (assoc) {
+					assoc.terms = assoc.terms.map(function (d, i) {
 
-				//console.log(assoc.terms)
 
-				assoc.terms = assoc.terms.map(function (d, i) {
-					return {
-						x: i,
-						y: d.value
-					}
+						return {
+							x: i,
+							y: d.value
+						}
+					})
 				})
 			})
 
