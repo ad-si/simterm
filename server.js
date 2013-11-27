@@ -109,7 +109,7 @@ server.get('/simterm', function (req, res, next) {
 
 	var	test = fakesome.object({
 		"term": "word()",
-		"associations": fakesome.array(100).object({
+		"associations": fakesome.array(10).object({
 			time: "date()",
 			terms: function(){
 				return fakesome.array(5).object({

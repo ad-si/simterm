@@ -115,11 +115,17 @@
 		url: 'http://localhost:1234/simterm',
 		success: function (data) {
 
+
+
 			function processData(data){
+
+				var
 
 
 				data.associations.forEach(function (assoc) {
 					assoc.terms = assoc.terms.map(function (d, i) {
+
+
 						return {
 							x: i,
 							y: d.value
