@@ -31,16 +31,6 @@
 
 	function getMinMax(layers, type) {
 
-		/*console.log('test:' + d3[type](layers[0].values.map(function (d) {
-			return d.x
-		})))
-
-		console.log(layers[0].values.map(function (d) {
-			return d.x
-		}))
-
-		console.log(layers[0])*/
-
 		return new Date(d3[type](layers[0].values.map(function (d) {
 			return d.x
 		})))
@@ -48,8 +38,8 @@
 
 
 	$.ajax({
-		//url: 'data/simterm.json',
-		url: 'http://localhost:1234/simterm',
+		url: 'data/simterm.json',
+		//url: 'http://localhost:1234/simterm',
 		success: function (data) {
 
 			//var layers = []
@@ -71,27 +61,27 @@
 			// Map data to layer-style data
 			data.associations.forEach(function (momentObject) {
 
-				momentObject.terms.forEach(function (term) {
+				momentObject.terms.forEach(function (term, i) {
+
 
 					// Create layer if not yet defined
-					if (!indexDict[term.name]) {
+					if (indexDict[term.name] === undefined) {
 						layers.push({
 							name: term.name,
 							values: []
 						})
 
-						indexDict[term.name] = layers.length
+						indexDict[term.name] = layers.length - 1
 					}
 
 					layers[indexDict[term.name]].values.push({
 						x: momentObject.time,
-						y: term.value,
-						y0: 0
+						y: term.value
 					})
 				})
 			})
 
-			console.log(layers)
+			//console.log(layers)
 
 			//console.log([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
 
@@ -117,8 +107,6 @@
 				})
 
 
-			stackedLayers = stackFunc(layers)
-
 			areaFunc = d3
 				.svg
 				.area()
@@ -126,10 +114,10 @@
 					return xScaleFunc(new Date(d.x))
 				})
 				.y0(function (d) {
-					return yScaleFunc(d.y0)
+					return d.y0
 				})
 				.y1(function (d) {
-					return yScaleFunc(d.y0 + d.y)
+					return d.y0 + d.y
 				})
 
 
@@ -145,11 +133,12 @@
 				.attr('height', height)
 				.attr('style', 'border: 1px solid gray')
 
+			console.log(layers)
 
 			svg
-				.selectAll('.layer')
-				//.data(data)
-				.data(stackedLayers)
+				.selectAll('path')
+				//.data(stackFunc(testData))
+				.data(stackFunc(layers))
 				.enter()
 				.append('path')
 				.attr('class', 'layer')
