@@ -8,8 +8,9 @@
 		areaFunc,
 		svg,
 		testData,
-		layers,
-		colors, xScaleFunc, yScaleFunc
+		colors,
+		xScaleFunc,
+		yScaleFunc
 
 	colors = ['green', 'blue', 'yellow', 'red']
 
@@ -42,21 +43,8 @@
 		//url: 'http://localhost:1234/simterm',
 		success: function (data) {
 
-			//var layers = []
-
-			/*data = testData.map(function (dataArray) {
-			 return dataArray.map(function (time) {
-			 return {
-			 x: xyArray[0],
-			 y: xyArray[1]
-			 }
-			 })
-			 })*/
-
-
 			var layers = [],
-				indexDict = {},
-				stackedLayers
+				indexDict = {}
 
 			// Map data to layer-style data
 			data.associations.forEach(function (momentObject) {
@@ -81,7 +69,8 @@
 				})
 			})
 
-			//console.log(layers)
+			console.log(JSON.parse(JSON.stringify(layers)))
+			console.log(layers)
 
 			//console.log([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
 
@@ -94,7 +83,7 @@
 			yScaleFunc = d3
 				.scale
 				.linear()
-				.domain([0, 1])
+				.domain([0, 10])
 				.range([height, 0])
 
 
@@ -114,17 +103,14 @@
 					return xScaleFunc(new Date(d.x))
 				})
 				.y0(function (d) {
-					return d.y0
+					return yScaleFunc(d.y0)
 				})
 				.y1(function (d) {
-					return d.y0 + d.y
+					return yScaleFunc(d.y0 + d.y)
 				})
 
 
 			//console.log(layers)
-			//console.log(data)
-
-			//console.log(data)
 
 			svg = d3
 				.select('body')
@@ -133,7 +119,6 @@
 				.attr('height', height)
 				.attr('style', 'border: 1px solid gray')
 
-			console.log(layers)
 
 			svg
 				.selectAll('path')
@@ -141,9 +126,7 @@
 				.data(stackFunc(layers))
 				.enter()
 				.append('path')
-				.attr('class', 'layer')
 				.attr("d", function (d) {
-					console.log(d)
 					return areaFunc(d.values)
 				})
 				.style("fill", function (d, i) {

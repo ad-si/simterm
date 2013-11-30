@@ -31,10 +31,10 @@
 				return bumpLayer(m);
 			}))
 
-	console.log(d3.range(n).map(function () {
-		return bumpLayer(m);
-	}))
 
+	console.log(JSON.parse(JSON.stringify(d3.range(n).map(function () {
+		return bumpLayer(m);
+	}))))
 
 	var width = 960,
 			height = 500;
@@ -81,7 +81,10 @@
 	svg.selectAll("path")
 			.data(layers0)
 			.enter().append("path")
-			.attr("d", area)
+			.attr("d", function(d){
+				console.log(d)
+				return area(d)
+			})
 			.style("fill", function () {
 				return color(Math.random());
 			});
@@ -89,9 +92,9 @@
 	function transition() {
 		d3.selectAll("path")
 				.data(function () {
-					var d = layers1;
-					layers1 = layers0;
-					return layers0 = d;
+					var d = layers1:
+					layers1 = layers0
+					return layers0 = d
 				})
 				.transition()
 				.duration(2500)
