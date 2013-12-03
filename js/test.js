@@ -2,8 +2,8 @@
 
 	var numberOfLayers = 20,
 		numberOfSamples = 200,
-		width = 400,
-		height = 300,
+		width = 800,
+		height = 400,
 		stackFunc,
 		areaFunc,
 		svg,
@@ -12,7 +12,7 @@
 		xScaleFunc,
 		yScaleFunc
 
-	colors = ['green', 'blue', 'yellow', 'red']
+	colors = ['coral', 'chocolate', 'yellow', 'firebrick', 'orange']
 
 	testData = [
 		[
@@ -39,8 +39,8 @@
 
 
 	$.ajax({
-		url: 'data/simterm.json',
-		//url: 'http://localhost:1234/simterm',
+		//url: 'data/simterm.json',
+		url: 'http://localhost:1234/simterm',
 		success: function (data) {
 
 			var layers = [],
@@ -69,10 +69,10 @@
 				})
 			})
 
-			console.log(JSON.parse(JSON.stringify(layers)))
-			console.log(layers)
+			//console.log(JSON.parse(JSON.stringify(layers)))
+			//console.log(layers)
 
-			//console.log([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
+			console.log([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
 
 			xScaleFunc = d3
 				.time
@@ -83,14 +83,17 @@
 			yScaleFunc = d3
 				.scale
 				.linear()
-				.domain([0, 10])
+				.domain([0, layers.length])
+				//.domain([0, 1])
 				.range([height, 0])
 
 
 			stackFunc = d3
 				.layout
 				.stack()
-				.offset('wiggle')
+				.offset('silhouette')
+				//.offset('expand')
+				//.offset('wiggle')
 				.values(function (d) {
 					return d.values
 				})
@@ -122,7 +125,6 @@
 
 			svg
 				.selectAll('path')
-				//.data(stackFunc(testData))
 				.data(stackFunc(layers))
 				.enter()
 				.append('path')
