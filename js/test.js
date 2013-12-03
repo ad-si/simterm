@@ -4,49 +4,51 @@
 		numberOfSamples = 200,
 		width = 800,
 		height = 400,
+		colors = ['coral', 'chocolate', 'yellow', 'firebrick', 'orange'],
+		firstCall = true,
 		stackFunc,
 		areaFunc,
 		svg,
 		testData,
-		colors,
 		xScaleFunc,
 		yScaleFunc
 
-	colors = ['coral', 'chocolate', 'yellow', 'firebrick', 'orange']
 
-	testData = [
-		[
-			[10, 11],
-			[20, 5],
-			[30, 27],
-			[40, 14]
-		],
-		[
-			[10, 12],
-			[20, 5],
-			[30, 13],
-			[40, 14]
-		]
-	]
+	function loadData(callback){
 
-
-	function getMinMax(layers, type) {
-
-		return new Date(d3[type](layers[0].values.map(function (d) {
-			return d.x
-		})))
+		$.ajax({
+			url: 'http://localhost:1234/simterm',
+			error: function(data){
+				throw data
+			},
+			success: function(data){
+				callback(data)
+			}
+		})
 	}
 
+	function render(data){
 
-	$.ajax({
-		//url: 'data/simterm.json',
-		url: 'http://localhost:1234/simterm',
-		success: function (data) {
+		var svg,
+			indexDict = {},
+			layers,
+			xScaleFunc,
+			yScaleFunc,
+			stackFunc,
+			areaFunc
 
-			var layers = [],
-				indexDict = {}
 
-			// Map data to layer-style data
+		function getMinMax(layers, type) {
+
+			return new Date(d3[type](layers[0].values.map(function (d) {
+				return d.x
+			})))
+		}
+
+		function convertData (data) {
+
+			var layers = []
+
 			data.associations.forEach(function (momentObject) {
 
 				momentObject.terms.forEach(function (term, i) {
@@ -69,51 +71,23 @@
 				})
 			})
 
-			//console.log(JSON.parse(JSON.stringify(layers)))
-			//console.log(layers)
+			return layers
+		}
 
-			console.log([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
+		function updateRendering(layers) {
 
-			xScaleFunc = d3
-				.time
-				.scale()
-				.domain([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
-				.range([0, width])
-
-			yScaleFunc = d3
-				.scale
-				.linear()
-				.domain([0, layers.length])
-				//.domain([0, 1])
-				.range([height, 0])
-
-
-			stackFunc = d3
-				.layout
-				.stack()
-				.offset('silhouette')
-				//.offset('expand')
-				//.offset('wiggle')
-				.values(function (d) {
-					return d.values
+			d3
+				.selectAll("path")
+				.data(stackFunc(layers))
+				.transition()
+				.duration(2500)
+				.attr("d", function (d) {
+					console.log(d.values)
+					return areaFunc(d.values)
 				})
+		}
 
-
-			areaFunc = d3
-				.svg
-				.area()
-				.x(function (d) {
-					return xScaleFunc(new Date(d.x))
-				})
-				.y0(function (d) {
-					return yScaleFunc(d.y0)
-				})
-				.y1(function (d) {
-					return yScaleFunc(d.y0 + d.y)
-				})
-
-
-			//console.log(layers)
+		function renderInitially(layers){
 
 			svg = d3
 				.select('body')
@@ -121,7 +95,6 @@
 				.attr('width', width)
 				.attr('height', height)
 				.attr('style', 'border: 1px solid gray')
-
 
 			svg
 				.selectAll('path')
@@ -135,5 +108,87 @@
 					return colors[i]
 				})
 
-		}})
+		}
+
+		function renderChangedOrder(layers){
+
+			var stackFunc2 = d3
+				.layout
+				.stack()
+				.order('inside-out')
+				.offset('silhouette')
+				.values(function (d) {
+					return d.values
+				})
+
+
+			d3
+				.selectAll("path")
+				.data(layers)
+				.transition()
+				.duration(2500)
+				.attr("d", function (d) {
+					console.log(d.values)
+					return areaFunc(d.values)
+				})
+		}
+
+
+		layers = convertData(data)
+
+		xScaleFunc = d3
+			.time
+			.scale()
+			.domain([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
+			.range([0, width])
+
+
+		yScaleFunc = d3
+			.scale
+			.linear()
+			.domain([0, layers.length])
+			.range([height, 0])
+
+		stackFunc = d3
+			.layout
+			.stack()
+			.order('inside-out')
+			.offset('silhouette')
+			.values(function (d) {
+				return d.values
+			})
+
+		areaFunc = d3
+			.svg
+			.area()
+			.x(function (d) {
+				return xScaleFunc(new Date(d.x))
+			})
+			.y0(function (d) {
+				return yScaleFunc(d.y0)
+			})
+			.y1(function (d) {
+				return yScaleFunc(d.y0 + d.y)
+			})
+
+
+		if(firstCall){
+			renderInitially(layers)
+			firstCall = false
+		}
+		else{
+			updateRendering(layers)
+			//changeOrder(layers)
+		}
+	}
+
+
+	$('#update').click(function(){
+
+		//render()
+
+		loadData(render)
+	})
+
+	loadData(render)
 }()
