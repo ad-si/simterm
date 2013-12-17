@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "homepage": "https://github.com/adius/simterm",
   "authors": [
-    "adius <mail@adriansieber.com>"
+    "adius <mail@adriansieber.com>",
+	"Jan Selke",
+	"Stephan Detje"
   ],
   "description": "Visualisation of similar terms over time",
   "license": "MIT",

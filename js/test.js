@@ -1,33 +1,32 @@
 !function () {
 
-	var numberOfLayers = 20,
-		numberOfSamples = 200,
-		width = 800,
+	var width = 800,
 		height = 400,
-		colors = ['coral', 'chocolate', 'yellow', 'firebrick', 'orange'],
+		colors = ['coral', 'chocolate', 'yellow', 'firebrick', 'orange', 'red', 'purple', 'indianred', 'crimson', 'tomato'],
 		firstCall = true,
-		stackFunc,
-		areaFunc,
-		svg,
-		testData,
-		xScaleFunc,
-		yScaleFunc
+		svg
 
 
-	function loadData(callback){
+	/*var color = d3
+	 .scale
+	 .linear()
+	 .range(["red", "green"])*/
+
+
+	function loadData(callback) {
 
 		$.ajax({
 			url: 'http://localhost:1234/simterm',
-			error: function(data){
+			error: function (data) {
 				throw data
 			},
-			success: function(data){
+			success: function (data) {
 				callback(data)
 			}
 		})
 	}
 
-	function render(data){
+	function render(data) {
 
 		var svg,
 			indexDict = {},
@@ -45,7 +44,7 @@
 			})))
 		}
 
-		function convertData (data) {
+		function convertData(data) {
 
 			var layers = []
 
@@ -80,14 +79,14 @@
 				.selectAll("path")
 				.data(stackFunc(layers))
 				.transition()
-				.duration(2500)
+				.duration(2000)
 				.attr("d", function (d) {
 					console.log(d.values)
 					return areaFunc(d.values)
 				})
 		}
 
-		function renderInitially(layers){
+		function renderInitially(layers) {
 
 			svg = d3
 				.select('body')
@@ -96,10 +95,14 @@
 				.attr('height', height)
 				.attr('style', 'border: 1px solid gray')
 
-			svg
+			var group = svg
 				.selectAll('path')
 				.data(stackFunc(layers))
 				.enter()
+				.append('g')
+
+
+			group
 				.append('path')
 				.attr("d", function (d) {
 					return areaFunc(d.values)
@@ -107,10 +110,19 @@
 				.style("fill", function (d, i) {
 					return colors[i]
 				})
+				/*.style("fill", function () {
+			      return color(Math.random())
+				 })*/
+
+			group
+				.append('title')
+				.text(function(d){
+					return d.name
+				})
 
 		}
 
-		function renderChangedOrder(layers){
+		function renderChangedOrder(layers) {
 
 			var stackFunc2 = d3
 				.layout
@@ -152,7 +164,7 @@
 		stackFunc = d3
 			.layout
 			.stack()
-			.order('inside-out')
+			//.order('inside-out')
 			.offset('silhouette')
 			.values(function (d) {
 				return d.values
@@ -172,23 +184,28 @@
 			})
 
 
-		if(firstCall){
+		if (firstCall) {
 			renderInitially(layers)
 			firstCall = false
 		}
-		else{
+		else {
 			updateRendering(layers)
 			//changeOrder(layers)
 		}
 	}
 
 
-	$('#update').click(function(){
-
-		//render()
+	$('#update').click(function () {
 
 		loadData(render)
 	})
+
+	/*d3
+		.select('#update')
+		.on('click', function(){
+
+			loadData(render)
+	})*/
 
 	loadData(render)
 }()
