@@ -2,15 +2,45 @@ gray(color, opacity = 1)
 	return rgba(color,color,color, opacity)
 
 *
-	margin: 0
-	padding: 0
-	border: 0
-	font-size: 100%
-	box-sizing: border-box
+	margin 0
+	padding 0
+	border 0
+	font-size 100%
+	box-sizing border-box
 
+body
+	font-size 14px
+	font-family Arial
+	
+h1
+	font-size 2em
 
 article
-	width: 900px
-	margin: 0 auto
-	padding: 50px 20px
-	background-color: gray(200)
+	width 900px
+	margin 0 auto
+	padding 50px 20px
+	background-color gray(200)
+
+
+#rangSliderWrapper
+	height 100px
+	padding 50px
+
+//TODO does * also select pseudo elements?
+.sliderLabel:before
+	box-sizing border-box
+	content attr(data-content)
+	width 100px
+	height 30px
+	background-color white
+	position absolute
+	top -35px
+	left -50px
+	border-radius 3px
+	padding 0.5em
+	border 1px solid gray(160)
+
+.streamgraphPopup
+	position absolute
+	background-color white
+	padding: 1em

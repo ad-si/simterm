@@ -52,7 +52,6 @@
 		})
 	}
 
-
 	simterm.render = function (data) {
 
 		var svg,
@@ -135,7 +134,30 @@
 				.style("fill", function (d, i) {
 					return colors[i]
 				})
-			/*.style("fill", function () {
+				.on('click', function(datum, index){
+
+					d3.event.stopPropagation()
+
+					$('.streamgraphPopup')
+						.remove()
+
+					var $popup = $('<div class="streamgraphPopup"></div>')
+						.text(datum.name)
+						.click(function(event){
+							event.stopPropagation()
+						})
+						.css('top', d3.event.pageY)
+						.css('left', d3.event.pageX)
+						.appendTo(document.body)
+
+					$('body').click(function(){
+						$popup.remove()
+					})
+
+					console.log(d3.event)
+				})
+			/* TODO: Think of a meaningful coloring algorithm
+			.style("fill", function () {
 			 return color(Math.random())
 			 })*/
 
@@ -217,6 +239,8 @@
 			//changeOrder(layers)
 		}
 	}
+
+
 
 	window.simterm = simterm
 

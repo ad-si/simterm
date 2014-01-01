@@ -5,9 +5,38 @@
   font-size: 100%;
   box-sizing: border-box;
 }
+body {
+  font-size: 14px;
+  font-family: Arial;
+}
+h1 {
+  font-size: 2em;
+}
 article {
   width: 900px;
   margin: 0 auto;
   padding: 50px 20px;
   background-color: #c8c8c8;
+}
+#rangSliderWrapper {
+  height: 100px;
+  padding: 50px;
+}
+.sliderLabel:before {
+  box-sizing: border-box;
+  content: attr(data-content);
+  width: 100px;
+  height: 30px;
+  background-color: #fff;
+  position: absolute;
+  top: -35px;
+  left: -50px;
+  border-radius: 3px;
+  padding: 0.5em;
+  border: 1px solid #a0a0a0;
+}
+.streamgraphPopup {
+  position: absolute;
+  background-color: #fff;
+  padding: 1em;
 }
