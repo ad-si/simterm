@@ -4,8 +4,8 @@
   "homepage": "https://github.com/adius/simterm",
   "authors": [
     "adius <mail@adriansieber.com>",
-	"Jan Selke",
-	"Stephan Detje"
+    "Jan Selke",
+    "Stephan Detje"
   ],
   "description": "Visualisation of similar terms over time",
   "license": "MIT",
@@ -16,5 +16,8 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "nouislider": "~5.0.0"
+  }
 }

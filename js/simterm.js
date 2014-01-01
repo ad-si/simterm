@@ -1,166 +1,223 @@
 !function () {
 
-	var svg,
-		area,
-		y,
-		x,
-		width, height,
-		color,
-		numberOfTerms = 5,
-		numberOfSamples = 200
+	var simterm = {},
+		width = 800,
+		height = 400,
+		colors = ['coral', 'chocolate', 'yellow', 'firebrick', 'orange', 'red', 'purple', 'indianred', 'crimson', 'tomato'],
+		firstCall = true,
+		svg
 
 
-	function bumpLayer(n) {
+	/*var color = d3
+	 .scale
+	 .linear()
+	 .range(["red", "green"])*/
 
-		function bump(a) {
 
-			var x = 1 / (.1 + Math.random()),
-				y = 2 * Math.random() - .5,
-				z = 10 / (.1 + Math.random())
+	simterm.loadData = function (callback, urlObject) {
 
-			for (var i = 0; i < n; i++) {
+		var urlObj = {
+				protocol: 'http:',
+				host: '//localhost:1234',
+				pathname: '/simterm'
+			},
+			search = ''
 
-				var w = (i / n - y) * z
+		$.extend(urlObj, urlObject)
 
-				a[i] += x * Math.exp(-w * w)
+
+		if (urlObj.query) {
+
+			search = '?'
+
+			for (var key in urlObj.query) {
+				if (urlObj.query.hasOwnProperty(key)) {
+
+					search += key + '=' + urlObj.query[key] + '&'
+				}
 			}
 		}
 
-		var a = [],
-			i
+		var url = urlObj.protocol + urlObj.host + urlObj.pathname + search
 
-		for (i = 0; i < n; ++i) a[i] = 0
 
-		for (i = 0; i < 5; ++i) bump(a)
-
-		return a.map(function (d, i) {
-			return {x: i, y: Math.max(0, d)}
+		$.ajax({
+			url: url,
+			error: function (data) {
+				throw data
+			},
+			success: function (data) {
+				callback(data)
+			}
 		})
 	}
 
-	function renderStreamGraph(data) {
+
+	simterm.render = function (data) {
+
+		var svg,
+			indexDict = {},
+			layers,
+			xScaleFunc,
+			yScaleFunc,
+			stackFunc,
+			areaFunc
 
 
-		//console.log(data)
+		function getMinMax(layers, type) {
 
-		var stack = d3.layout.stack().offset("wiggle"),
-			layers0 = stack(
-				d3
-					.range(numberOfTerms)
-					.map(function (d) {
-						return processData(d)
+			return new Date(d3[type](layers[0].values.map(function (d) {
+				return d.x
+			})))
+		}
+
+		function convertData(data) {
+
+			var layers = []
+
+			data.associations.forEach(function (momentObject) {
+
+				momentObject.terms.forEach(function (term, i) {
+
+
+					// Create layer if not yet defined
+					if (indexDict[term.name] === undefined) {
+						layers.push({
+							name: term.name,
+							values: []
+						})
+
+						indexDict[term.name] = layers.length - 1
+					}
+
+					layers[indexDict[term.name]].values.push({
+						x: momentObject.time,
+						y: term.value
 					})
-			),
-			layers1 = stack(
-				d3
-					.range(numberOfTerms)
-					.map(function () {
-						return processData(data)
-					})
-			)
+				})
+			})
 
-		width = 960
-		height = 500
+			return layers
+		}
 
-		x = d3
-			.scale
-			.linear()
-			.domain([0, numberOfSamples - 1])
+		function updateRendering(layers) {
+
+			d3
+				.selectAll("path")
+				.data(stackFunc(layers))
+				.transition()
+				.duration(2000)
+				.attr("d", function (d) {
+					return areaFunc(d.values)
+				})
+		}
+
+		function renderInitially(layers) {
+
+			svg = d3
+				.select('#streamgraph')
+				.append('svg')
+				.attr('width', width)
+				.attr('height', height)
+
+			var group = svg
+				.selectAll('path')
+				.data(stackFunc(layers))
+				.enter()
+				.append('g')
+
+
+			group
+				.append('path')
+				.attr("d", function (d) {
+					return areaFunc(d.values)
+				})
+				.style("fill", function (d, i) {
+					return colors[i]
+				})
+			/*.style("fill", function () {
+			 return color(Math.random())
+			 })*/
+
+			group
+				.append('title')
+				.text(function (d) {
+					return d.name
+				})
+
+		}
+
+		function renderChangedOrder(layers) {
+
+			var stackFunc2 = d3
+				.layout
+				.stack()
+				.order('inside-out')
+				.offset('silhouette')
+				.values(function (d) {
+					return d.values
+				})
+
+
+			d3
+				.selectAll("path")
+				.data(layers)
+				.transition()
+				.duration(2500)
+				.attr("d", function (d) {
+					return areaFunc(d.values)
+				})
+		}
+
+
+		layers = convertData(data)
+
+		xScaleFunc = d3
+			.time
+			.scale()
+			.domain([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
 			.range([0, width])
 
-		y = d3
+
+		yScaleFunc = d3
 			.scale
 			.linear()
-			.domain([0, d3.max(layers0.concat(layers1), function (layer) {
-				return d3.max(layer, function (d) {
-					return d.y0 + d.y
-				})
-			})])
+			.domain([0, layers.length])
 			.range([height, 0])
 
-		color = d3
-			.scale
-			.linear()
-			.range(["rgb(255,0,0)", "rgb(0,0,255)"])
+		stackFunc = d3
+			.layout
+			.stack()
+			//.order('inside-out')
+			.offset('silhouette')
+			.values(function (d) {
+				return d.values
+			})
 
-		area = d3
+		areaFunc = d3
 			.svg
 			.area()
 			.x(function (d) {
-				return x(d.x)
+				return xScaleFunc(new Date(d.x))
 			})
 			.y0(function (d) {
-				return y(d.y0)
+				return yScaleFunc(d.y0)
 			})
 			.y1(function (d) {
-				return y(d.y0 + d.y)
+				return yScaleFunc(d.y0 + d.y)
 			})
 
-		svg = d3
-			.select("body")
-			.append("svg")
-			.attr("width", width)
-			.attr("height", height)
 
-		svg
-			.selectAll("path")
-			.data(layers0)
-			.enter()
-			.append("path")
-			.attr("d", area)
-			.style("fill", function () {
-				return color(Math.random())
-			})
-
-		function transition() {
-			d3
-				.selectAll("path")
-				.data(function () {
-					var d = layers1
-
-					layers1 = layers0
-					return layers0 = d
-				})
-				.transition()
-				.duration(2500)
-				.attr("d", area)
+		if (firstCall) {
+			renderInitially(layers)
+			firstCall = false
 		}
-
-
-		function processData(data) {
-
-			function processData(data){
-
-				data.associations.forEach(function (assoc) {
-					assoc.terms = assoc.terms.map(function (d, i) {
-
-
-						return {
-							x: i,
-							y: d.value
-						}
-					})
-				})
-			})
-
-			return data
+		else {
+			updateRendering(layers)
+			//changeOrder(layers)
 		}
 	}
 
-	//console.log(bumpLayer(100))
+	window.simterm = simterm
 
-	$.ajax({
-		url: 'http://localhost:1234/simterm',
-		success: function (data) {
-
-			renderStreamGraph(data)
-
-			//console.log(processData(data))
-
-		},
-		error: function (data) {
-			console.error(data)
-		}
-
-	})
 }()

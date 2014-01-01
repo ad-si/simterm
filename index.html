@@ -3,17 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>Simterm</title>
+    <link rel="stylesheet" href="bower_components/nouislider/jquery.nouislider.css"/>
+    <link rel="stylesheet" href="css/screen.css"/>
+
 </head>
 <body>
-<h1>Simterm</h1>
 
-<button id="update">Update</button>
+<article>
 
-<br>
+    <h1>Simterm</h1>
+
+    <div id="streamgraph"></div>
+
+    <button id="update">Update</button>
+
+    <div id="rangeSlider"></div>
+
+</article>
 
 <script src="bower_components/jquery/jquery.js"></script>
 <script src="bower_components/d3/d3.js"></script>
-<script src="js/test.js"></script>
+<script src="bower_components/nouislider/jquery.nouislider.js"></script>
+<script src="js/simterm.js"></script>
 <script src="js/index.js"></script>
 </body>
 </html>

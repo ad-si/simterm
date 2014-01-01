@@ -20,11 +20,11 @@ server.get('/simterm', function (req, res, next) {
 	var counter = 0
 
 
-	function getTerm(){
+	function getTerm() {
 
 		var reset = false
 
-		if(counter % numberOfTerms == 0)
+		if (counter % numberOfTerms == 0)
 			reset = true
 
 		var value = fakesome
@@ -37,14 +37,17 @@ server.get('/simterm', function (req, res, next) {
 		return value
 	}
 
+	console.log(req.query)
 
-	var	test = fakesome.object({
+	var test = fakesome.object({
 		"term": "SAP",
 		"associations": fakesome.array(numberOfSamples).object({
-			time: "date()",
-			terms: function(){
+			time: function () {
+				return fakesome.date(req.query.from, req.query.to)
+			},
+			terms: function () {
 				return fakesome.array(numberOfTerms).object({
-					name: function(){
+					name: function () {
 						return getTerm()
 					},
 					value: "float(0, 1)"
@@ -53,7 +56,7 @@ server.get('/simterm', function (req, res, next) {
 		})
 	})
 
-	test.associations.sort(function(a, b){
+	test.associations.sort(function (a, b) {
 		return a.time - b.time
 	})
 
