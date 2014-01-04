@@ -111,6 +111,18 @@
 				})
 		}
 
+		function convertToAreaChart(layers) {
+
+			d3
+				.selectAll("path")
+				.data(stackFunc(layers))
+				.transition()
+				.duration(2000)
+				.attr("d", function (d) {
+					return areaFunc(d.values)
+				})
+		}
+
 		function renderInitially(layers) {
 
 			svg = d3
@@ -175,7 +187,8 @@
 				.layout
 				.stack()
 				.order('inside-out')
-				.offset('silhouette')
+				//.offset('silhouette')
+				//.offset('zero')
 				.values(function (d) {
 					return d.values
 				})
@@ -211,7 +224,8 @@
 			.layout
 			.stack()
 			//.order('inside-out')
-			.offset('silhouette')
+			//.offset('silhouette')
+			.offset('zero')
 			.values(function (d) {
 				return d.values
 			})
@@ -219,6 +233,7 @@
 		areaFunc = d3
 			.svg
 			.area()
+			.interpolate('basis') //'basis'
 			.x(function (d) {
 				return xScaleFunc(new Date(d.x))
 			})

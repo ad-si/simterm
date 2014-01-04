@@ -63,11 +63,49 @@
 
 	setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
 
+
+	$('#filters')
+		.find('label')
+		.click(function (event) {
+
+			console.log($(this).find('input').attr('id'))
+
+			switch ($(this).find('input').attr('id')) {
+				case 'streamgraphFilter':
+					alert(this.id);
+					break;
+				case 'stackedChartFilter':
+					alert(this.id);
+					break;
+				case 'alphabeticalFilter':
+					alert(this.id);
+					break;
+				case 'sizeFilter':
+					alert(this.id);
+					break;
+				case 'customFilter':
+					alert(this.id);
+					break;
+				default:
+					alert('No such option');
+			}
+		})
+
 	$('#update').click(function () {
 
 		simterm.loadData(simterm.render)
 	})
 
 	simterm.loadData(simterm.render)
+
+	$('.btn')
+		.button()
+		.on('change', function () {
+
+			$(this)
+				.find('input')
+				.val()
+		})
+
 
 }()
