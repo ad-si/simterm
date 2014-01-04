@@ -5,14 +5,21 @@
 		height = 400,
 		colors = ['coral', 'chocolate', 'yellow', 'firebrick', 'orange', 'red', 'purple', 'indianred', 'crimson', 'tomato'],
 		firstCall = true,
-		svg
+		svg,
+		layers = [],
+		config = {
+			sortOrder: 'alphabetical',
+			interpolation: 'basis',
+			offset: 'silhouette'
+		}
 
 
-	/*var color = d3
-	 .scale
-	 .linear()
-	 .range(["red", "green"])*/
+	simterm.config = function (configObject) {
 
+		$.extend(config, configObject)
+
+		return this
+	}
 
 	simterm.loadData = function (callback, urlObject) {
 
@@ -52,78 +59,100 @@
 		})
 	}
 
-	simterm.render = function (data) {
+	simterm.data = function (data) {
+
+		var indexDict = {}
+
+		layers = []
+
+		data.associations.forEach(function (momentObject) {
+
+			momentObject.terms.forEach(function (term, i) {
+
+
+				// Create layer if not yet defined
+				if (indexDict[term.name] === undefined) {
+					layers.push({
+						name: term.name,
+						values: []
+					})
+
+					indexDict[term.name] = layers.length - 1
+				}
+
+				layers[indexDict[term.name]].values.push({
+					x: momentObject.time,
+					y: term.value
+				})
+			})
+		})
+
+
+		return this
+	}
+
+	simterm.render = function () {
 
 		var svg,
-			indexDict = {},
-			layers,
 			xScaleFunc,
 			yScaleFunc,
-			stackFunc,
-			areaFunc
+			areaFunc,
+			stackFunction
+
+		stackFunction = d3
+			.layout
+			.stack()
+			//.order('inside-out')
+			.offset(config.offset)
+			.values(function (d) {
+				return d.values
+			})
 
 
-		function getMinMax(layers, type) {
+		areaFunc = d3
+			.svg
+			.area()
+			.interpolate(config.interpolation)
+			.x(function (d) {
+				return xScaleFunc(new Date(d.x))
+			})
+			.y0(function (d) {
+				return yScaleFunc(d.y0)
+			})
+			.y1(function (d) {
+				return yScaleFunc(d.y0 + d.y)
+			})
+
+
+		function getMinMax(type) {
 
 			return new Date(d3[type](layers[0].values.map(function (d) {
 				return d.x
 			})))
 		}
 
-		function convertData(data) {
+		function updateRendering() {
 
-			var layers = []
-
-			data.associations.forEach(function (momentObject) {
-
-				momentObject.terms.forEach(function (term, i) {
-
-
-					// Create layer if not yet defined
-					if (indexDict[term.name] === undefined) {
-						layers.push({
-							name: term.name,
-							values: []
-						})
-
-						indexDict[term.name] = layers.length - 1
-					}
-
-					layers[indexDict[term.name]].values.push({
-						x: momentObject.time,
-						y: term.value
-					})
-				})
-			})
-
-			return layers
-		}
-
-		function updateRendering(layers) {
+			/*d3
+				.selectAll("path")
+				.data(stackFunction(layers))
+				//.transition()
+				//.duration(800)
+				.attr("d", function (d) {
+					return areaFunc(d.values)
+				})*/
 
 			d3
 				.selectAll("path")
-				.data(stackFunc(layers))
+				.data(stackFunction(layers))
 				.transition()
-				.duration(2000)
+				.duration(800)
 				.attr("d", function (d) {
 					return areaFunc(d.values)
 				})
 		}
 
-		function convertToAreaChart(layers) {
-
-			d3
-				.selectAll("path")
-				.data(stackFunc(layers))
-				.transition()
-				.duration(2000)
-				.attr("d", function (d) {
-					return areaFunc(d.values)
-				})
-		}
-
-		function renderInitially(layers) {
+		function renderInitially() {
 
 			svg = d3
 				.select('#streamgraph')
@@ -133,7 +162,7 @@
 
 			var group = svg
 				.selectAll('path')
-				.data(stackFunc(layers))
+				.data(stackFunction(layers))
 				.enter()
 				.append('g')
 
@@ -146,7 +175,7 @@
 				.style("fill", function (d, i) {
 					return colors[i]
 				})
-				.on('click', function(datum, index){
+				.on('click', function (datum, index) {
 
 					d3.event.stopPropagation()
 
@@ -155,21 +184,20 @@
 
 					var $popup = $('<div class="streamgraphPopup"></div>')
 						.text(datum.name)
-						.click(function(event){
+						.click(function (event) {
 							event.stopPropagation()
 						})
 						.css('top', d3.event.pageY)
 						.css('left', d3.event.pageX)
 						.appendTo(document.body)
 
-					$('body').click(function(){
+					$('body').click(function () {
 						$popup.remove()
 					})
 
-					console.log(d3.event)
 				})
 			/* TODO: Think of a meaningful coloring algorithm
-			.style("fill", function () {
+			 .style("fill", function () {
 			 return color(Math.random())
 			 })*/
 
@@ -181,7 +209,7 @@
 
 		}
 
-		function renderChangedOrder(layers) {
+		function renderChangedOrder() {
 
 			var stackFunc2 = d3
 				.layout
@@ -205,12 +233,10 @@
 		}
 
 
-		layers = convertData(data)
-
 		xScaleFunc = d3
 			.time
 			.scale()
-			.domain([getMinMax(layers, 'min'), getMinMax(layers, 'max')])
+			.domain([getMinMax('min'), getMinMax('max')])
 			.range([0, width])
 
 
@@ -220,43 +246,47 @@
 			.domain([0, layers.length])
 			.range([height, 0])
 
-		stackFunc = d3
+
+		if (firstCall) {
+			renderInitially()
+			firstCall = false
+		}
+		else {
+			updateRendering()
+			//changeOrder(layers)
+		}
+
+		return this
+	}
+
+	/*simterm.convertToAreaChart = function () {
+
+		var stackedAreaChartFunc = d3
 			.layout
 			.stack()
 			//.order('inside-out')
-			//.offset('silhouette')
 			.offset('zero')
 			.values(function (d) {
 				return d.values
 			})
 
-		areaFunc = d3
-			.svg
-			.area()
-			.interpolate('basis') //'basis'
-			.x(function (d) {
-				return xScaleFunc(new Date(d.x))
-			})
-			.y0(function (d) {
-				return yScaleFunc(d.y0)
-			})
-			.y1(function (d) {
-				return yScaleFunc(d.y0 + d.y)
-			})
 
-
-		if (firstCall) {
-			renderInitially(layers)
-			firstCall = false
-		}
-		else {
-			updateRendering(layers)
-			//changeOrder(layers)
-		}
-	}
-
+		d3
+			.selectAll("path")
+			.data(stackedAreaChartFunc(layers))
+			.transition()
+			.duration(500)
+			.attr("d", function (d) {
+				return areaFunc(d.values)
+			})
+	}*/
 
 
 	window.simterm = simterm
 
 }()
+
+
+//simterm
+//	.loadData()
+//	.

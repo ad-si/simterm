@@ -57,7 +57,12 @@
 			var from = new Date(Number($rangeSlider.val()[0])).toJSON(),
 				to = new Date(Number($rangeSlider.val()[1])).toJSON()
 
-			simterm.loadData(simterm.render, {query: {from: from, to: to}})
+			simterm.loadData(function(data){
+				simterm
+					.data(data)
+					.render()
+			}, {query: {from: from, to: to}}
+			)
 		}
 	})
 
@@ -68,35 +73,75 @@
 		.find('label')
 		.click(function (event) {
 
-			console.log($(this).find('input').attr('id'))
 
 			switch ($(this).find('input').attr('id')) {
 				case 'streamgraphFilter':
-					alert(this.id);
-					break;
-				case 'stackedChartFilter':
-					alert(this.id);
-					break;
+					simterm
+						.config({
+							offset: 'silhouette'
+						})
+						.render()
+					break
+				case 'stackedAreaChartFilter':
+					simterm
+						.config({
+							offset: 'zero'
+						})
+						.render()
+					break
 				case 'alphabeticalFilter':
-					alert(this.id);
-					break;
+					simterm
+						.config({
+							offset: 'silhouette'
+						})
+						.render()
+					break
 				case 'sizeFilter':
-					alert(this.id);
-					break;
+					alert(this.id)
+					break
 				case 'customFilter':
-					alert(this.id);
-					break;
+					alert(this.id)
+					break
+				case 'baseInterpolation':
+					simterm
+						.config({
+							interpolation: 'basis'
+						})
+						.render()
+					break
+				case 'steppedInterpolation':
+					simterm
+						.config({
+							interpolation: 'step'
+						})
+						.render()
+					break
+				case 'noInterpolation':
+					simterm
+						.config({
+							interpolation: 'none'
+						})
+						.render()
+					break
 				default:
-					alert('No such option');
+					alert('No such option')
 			}
 		})
 
 	$('#update').click(function () {
 
-		simterm.loadData(simterm.render)
+		simterm.loadData(function (data) {
+			simterm
+				.data(data)
+				.render()
+		})
 	})
 
-	simterm.loadData(simterm.render)
+	simterm.loadData(function (data) {
+		simterm
+			.data(data)
+			.render()
+	})
 
 	$('.btn')
 		.button()
