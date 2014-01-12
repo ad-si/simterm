@@ -4,7 +4,6 @@ var restify = require('restify'),
 		name: 'TestServer',
 		version: '0.0.1'
 	}),
-	numberOfSamples = 15,
 	numberOfTerms = 5
 
 
@@ -17,7 +16,8 @@ server.use(restify.CORS())
 
 server.get('/simterm', function (req, res, next) {
 
-	var counter = 0
+	var counter = 0,
+		numberOfSamples = 15
 
 
 	function getTerm() {
@@ -41,7 +41,7 @@ server.get('/simterm', function (req, res, next) {
 
 	var test = fakesome.object({
 		"term": "SAP",
-		"associations": fakesome.array(numberOfSamples).object({
+		"associations": fakesome.array(fakesome.integer(10,100)).object({
 			time: function () {
 				return fakesome.date(req.query.from, req.query.to)
 			},

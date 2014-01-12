@@ -8,9 +8,29 @@
 		svg,
 		layers = [],
 		config = {
-			sortOrder: 'alphabetical',
+			sortOrder: 'inside-out',
 			interpolation: 'basis',
 			offset: 'silhouette'
+		},
+		sortingFuncs = {
+			'inside-out': 'inside-out',
+			alphabetical: function (data) {
+
+				var keys = [],
+					referenceKeys = []
+
+				layers.forEach(function (layer) {
+					keys.push(layer.name)
+					referenceKeys.push(layer.name)
+				})
+
+				return keys.sort().map(function (key) {
+					return referenceKeys.indexOf(key)
+				}).reverse()
+			},
+			size: function (data) {
+
+			}
 		}
 
 
@@ -102,7 +122,7 @@
 		stackFunction = d3
 			.layout
 			.stack()
-			//.order('inside-out')
+			.order(sortingFuncs[config.sortOrder])
 			.offset(config.offset)
 			.values(function (d) {
 				return d.values
@@ -133,18 +153,66 @@
 
 		function updateRendering() {
 
-			/*d3
+			d3
 				.selectAll("path")
 				.data(stackFunction(layers))
-				//.transition()
-				//.duration(800)
+				.transition()
+				.duration(500)
 				.attr("d", function (d) {
 					return areaFunc(d.values)
-				})*/
+				})
+		}
+
+		function updateRendering2() {
+
+			/*d3
+			 .selectAll("path")
+			 .data(stackFunction(layers))
+			 //.transition()
+			 //.duration(800)
+			 .attr("d", function (d) {
+			 return areaFunc(d.values)
+			 })
+			 //console.log(layers)
+
+			 var tempLayers = []
+
+			 function () {
+
+
+			 layers.forEach(function(layer){
+
+			 layer.values.forEach(function (value) {
+
+			 value.y = 0
+
+			 return value
+			 })
+
+			 return layer
+			 })
+
+			 return layers
+
+			 }()
+			 */
+
 
 			d3
 				.selectAll("path")
 				.data(stackFunction(layers))
+				.transition()
+				.duration(500)
+				.attr("d", function (d) {
+
+					return areaFunc(d.values.map(function (value) {
+						return {
+							x: value.x,
+							y: 0,
+							y0: 0
+						}
+					}))
+				})
 				.transition()
 				.duration(800)
 				.attr("d", function (d) {
@@ -155,8 +223,9 @@
 		function renderInitially() {
 
 			svg = d3
-				.select('#streamgraph')
+				.select('#graphWrapper')
 				.append('svg')
+				.attr('id', 'streamgraph')
 				.attr('width', width)
 				.attr('height', height)
 
@@ -191,7 +260,7 @@
 						.css('left', d3.event.pageX)
 						.appendTo(document.body)
 
-					$('body').click(function () {
+					$('html').click(function () {
 						$popup.remove()
 					})
 
@@ -261,25 +330,25 @@
 
 	/*simterm.convertToAreaChart = function () {
 
-		var stackedAreaChartFunc = d3
-			.layout
-			.stack()
-			//.order('inside-out')
-			.offset('zero')
-			.values(function (d) {
-				return d.values
-			})
+	 var stackedAreaChartFunc = d3
+	 .layout
+	 .stack()
+	 //.order('inside-out')
+	 .offset('zero')
+	 .values(function (d) {
+	 return d.values
+	 })
 
 
-		d3
-			.selectAll("path")
-			.data(stackedAreaChartFunc(layers))
-			.transition()
-			.duration(500)
-			.attr("d", function (d) {
-				return areaFunc(d.values)
-			})
-	}*/
+	 d3
+	 .selectAll("path")
+	 .data(stackedAreaChartFunc(layers))
+	 .transition()
+	 .duration(500)
+	 .attr("d", function (d) {
+	 return areaFunc(d.values)
+	 })
+	 }*/
 
 
 	window.simterm = simterm

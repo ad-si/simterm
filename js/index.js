@@ -5,7 +5,7 @@
 
 
 	//TODO: get max and min values from dataset
-	var min = new Date('2003-03-03').getTime(),
+	var min = new Date('1970-03-03').getTime(),
 		max = new Date('2010-10-10').getTime()
 
 	//TODO: write min and max to slider
@@ -54,6 +54,8 @@
 		},
 		set: function () {
 
+			$('#waity').css('display', 'block')
+
 			var from = new Date(Number($rangeSlider.val()[0])).toJSON(),
 				to = new Date(Number($rangeSlider.val()[1])).toJSON()
 
@@ -61,6 +63,8 @@
 				simterm
 					.data(data)
 					.render()
+
+				$('#waity').hide()
 			}, {query: {from: from, to: to}}
 			)
 		}
@@ -89,19 +93,38 @@
 						})
 						.render()
 					break
+
+
 				case 'alphabeticalFilter':
 					simterm
 						.config({
-							offset: 'silhouette'
+							sortOrder: 'alphabetical'
+						})
+						.render()
+					break
+				case 'insideOutFilter':
+					simterm
+						.config({
+							sortOrder: 'inside-out'
 						})
 						.render()
 					break
 				case 'sizeFilter':
-					alert(this.id)
+					simterm
+						.config({
+							sortOrder: 'size'
+						})
+						.render()
 					break
 				case 'customFilter':
-					alert(this.id)
+					simterm
+						.config({
+							sortOrder: 'custom'
+						})
+						.render()
 					break
+
+
 				case 'baseInterpolation':
 					simterm
 						.config({
@@ -141,6 +164,8 @@
 		simterm
 			.data(data)
 			.render()
+
+		$('#waity').hide()
 	})
 
 	$('.btn')
