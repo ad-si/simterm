@@ -47,6 +47,9 @@
 				protocol: 'http:',
 				host: '//localhost:1234',
 				pathname: '/simterm'
+				//host: '//www.blog-intelligence.com/XSEngine/XS_Search',
+				//pathname: '/steamgraph.xsjs'
+
 			},
 			search = ''
 
@@ -67,7 +70,6 @@
 
 		var url = urlObj.protocol + urlObj.host + urlObj.pathname + search
 
-
 		$.ajax({
 			url: url,
 			error: function (data) {
@@ -87,7 +89,7 @@
 
 		data.associations.forEach(function (momentObject) {
 
-			momentObject.terms.forEach(function (term, i) {
+			momentObject.terms.forEach(function (term) {
 
 
 				// Create layer if not yet defined
@@ -101,8 +103,10 @@
 				}
 
 				layers[indexDict[term.name]].values.push({
-					x: momentObject.time,
-					y: term.value
+					//x: momentObject.time,
+					//y: term.value
+					x: new Date(momentObject.time),
+					y: eval('1 / ' + term.value)
 				})
 			})
 		})
@@ -229,6 +233,7 @@
 				.attr('width', width)
 				.attr('height', height)
 
+			console.log(layers)
 			var group = svg
 				.selectAll('path')
 				.data(stackFunction(layers))
