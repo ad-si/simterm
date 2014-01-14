@@ -1,5 +1,5 @@
 var restify = require('restify'),
-	request = require('request'),
+	//request = require('request'),
 	fakesome = require('fakesome'),
 	server = restify.createServer({
 		name: 'TestServer',
@@ -17,22 +17,22 @@ server.use(restify.CORS())
 
 server.get('/simterm', function (req, res, next) {
 
-	$.get('/php/proxy.php', { //localost/~adrian/simterm/php/proxy.php', {
+	/*$.get('/php/proxy.php', { //localost/~adrian/simterm/php/proxy.php', {
 			csurl: 'http://www.blog-intelligence.com/XSEngine/XS_Search/steamgraph.xsjs',
 			keywords: req.keywords,
 			from: req.from,
 			to: req.to
 		},correctAndReturnData(d)
-	)
+	)*/
 
-	request.get('http://www.blog-intelligence.com/XSEngine/XS_Search/steamgraph.xsjs',
+	/*request.get('http://www.blog-intelligence.com/XSEngine/XS_Search/steamgraph.xsjs',
 		{keywords: req.keywords,
 			from: req.from,
 			to: req.to},
 			function(error, response, body){
 				if(!error && response.statusCode == 200)
 					correctAndReturnData(body)
-			})
+			})*/
 
 
 	function correctAndReturnData(data){
@@ -976,7 +976,7 @@ server.get('/simterm', function (req, res, next) {
 
 			terms.push('iPhone', 'Samsung', 'Android', 'iTunes', 'iPod', 'Apple', 'iPad', 'iOS', 'profit', 'product', 'company', 'taxes', 'Cupertino', 'device', 'tax', 'iWatch')
 
-			data.associations.forEach(function(assoc){
+			test.associations.forEach(function(assoc){
 				terms.forEach(function(term){
 					if(assoc.terms.filter(function(term2){
 						return term2.name == term
@@ -990,15 +990,15 @@ server.get('/simterm', function (req, res, next) {
 
 		correctData()
 
-		 data.associations.sort(function (a, b) {
+		 test.associations.sort(function (a, b) {
 		 return a.time - b.time
 		 })
 
 
-		 res.send(data)
+		 res.send(test)
 	}
 
-	//correctAndReturnData(0)
+	correctAndReturnData(0)
 
 
 })
