@@ -103,10 +103,8 @@
 				}
 
 				layers[indexDict[term.name]].values.push({
-					//x: momentObject.time,
-					//y: term.value
 					x: new Date(momentObject.time),
-					y: eval('1 / ' + term.value)
+					y: term.value / 20
 				})
 			})
 		})
