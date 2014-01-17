@@ -73,7 +73,7 @@
 		$.ajax({
 			url: url,
 			error: function (data) {
-				throw data
+				console.log(data)
 			},
 			success: function (data) {
 				callback(data)
@@ -104,7 +104,7 @@
 
 				layers[indexDict[term.name]].values.push({
 					x: new Date(momentObject.time),
-					y: term.value / 20
+					y: term.value / 4
 				})
 			})
 		})

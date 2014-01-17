@@ -86,21 +86,23 @@ server.get('/simterm', function (req, res, next) {
 
 			correctData()
 
-			data.associations.sort(function (a, b) {
+			/*data.associations.sort(function (a, b) {
 				return a.time - b.time
-			})
+			})*/
 
 
 			res.send(data)
 
 	}
 
+
 	request.get(
-		'http://www.blog-intelligence.com/XSEngine/XS_Search/steamgraph.xsjs',
 		{
-			keywords: req.query.keywords,
-			from: new Date(req.query.from).getTime(),
-			to: new Date(req.query.to).getTime()
+			uri: 'http://www.blog-intelligence.com/XSEngine/XS_Search/steamgraph.xsjs',
+			qs: {
+						keywords: req.query.keywords,
+						from: new Date(req.query.from).getTime(),
+						to: new Date(req.query.to).getTime()}
 		},
 		function (error, response, body) {
 
@@ -108,7 +110,7 @@ server.get('/simterm', function (req, res, next) {
 				throw error
 
 			//console.log(JSON.parse(body).associations[1].terms)
-			//console.dir(JSON.parse(body))
+			console.dir(JSON.parse(body))
 			correctAndReturnData(JSON.parse(body))
 		}
 

@@ -1,12 +1,15 @@
 !function () {
 
 	var $rangeSlider = $("#rangeSlider"),
-		firstLoad = true
+		searchValue = 'Apple',
+		firstLoad = true,
 
 
 	//TODO: get max and min values from dataset
-	var min = new Date('1970-03-03').getTime(),
+		min = new Date('2000-03-03').getTime(),
 		max = new Date('2010-10-10').getTime()
+
+
 
 	//TODO: write min and max to slider
 
@@ -65,13 +68,28 @@
 					.render()
 
 				$('#waity').hide()
-			}, {query: {from: from, to: to}}
+			}, {query: {keywords: searchValue, from: from, to: to}}
 			)
 		}
 	})
 
 	setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
 
+	keywords.addEventListener('keypress', function(){
+		if( event.keyCode == 13){
+			searchValue = keywords.value
+			simterm.loadData(function(data){
+				simterm
+					.data(data)
+					.render()
+			}, {query: {
+							keywords: searchValue,
+							from: new Date(Number($rangeSlider.val()[0])).toJSON(),
+							to: new Date(Number($rangeSlider.val()[1])).toJSON()
+				}
+			} )
+		}
+	}, false)
 
 	$('#filters')
 		.find('label')
@@ -160,13 +178,14 @@
 		})
 	})
 
-	simterm.loadData(function (data) {
+
+simterm.loadData(function (data) {
 		simterm
 			.data(data)
 			.render()
 
 		$('#waity').hide()
-	})
+	}, {query: {keywords: searchValue, from: new Date(min).toJSON(), to: new Date(max).toJSON()}})
 
 	$('.btn')
 		.button()
