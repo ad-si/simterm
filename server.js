@@ -55,7 +55,8 @@ server.get('/simterm', function (req, res, next) {
 			 })
 			 }
 			 })
-			 })*/
+			 })
+			 test.modifier = 1.0*/
 
 			function correctData() {
 

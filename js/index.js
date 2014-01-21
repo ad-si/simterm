@@ -16,8 +16,8 @@
 		min = new Date('2000-03-03').getTime(),
 		max = new Date('2013-12-10').getTime()
 
-		minTime.value = new Date(min)
-		maxTime.value = new Date(max)
+		minTime.value = new Date(min).toJSON().substr(0,10)
+		maxTime.value = new Date(max).toJSON().substr(0,10)
 
 	//TODO: write min and max to slider
 
@@ -104,30 +104,52 @@
 		}
 	}, false)
 
-	minTime.addEventListener('keypress', function(event){
-		if( event.keyCode == 13){
-			min = new Date(minTime.value).getTime()
 
+	$("#minTime").datepicker({
+		changeYear: true,
+		changeMonth: true,
+		numberOfMonths: 1,
+		maxDate: new Date(max-1),
+		dateFormat: "dd.mm.yy",
+		onSelect: function (selectedDate) {
+			min = new Date(selectedDate).getTime()
+			minTime.value = new Date(selectedDate).toJSON().substr(0, 10)
 			firstLoad = true
 			$rangeSlider.noUiSlider({
 				range: [min, max]
 			}, true)
-			setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
-			loadData()
+
+			if(new Date(selectedDate).getTime() > Number($rangeSlider.val()[0]))
+			{
+				setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
+				loadData()
+			}
 		}
 	})
-	maxTime.addEventListener('keypress', function(event){
-		if( event.keyCode == 13){
-			max = new Date(maxTime.value).getTime()
 
+	$("#maxTime").datepicker({
+		changeYear: true,
+		changeMonth: true,
+		numberOfMonths: 1,
+		minDate: new Date(min+1),
+		maxDate: 0,
+		dateFormat: "dd.mm.yy",
+		onSelect: function (selectedDate) {
+			max = new Date(selectedDate).getTime()
+			maxTime.value = new Date(selectedDate).toJSON().substr(0, 10)
 			firstLoad = true
 			$rangeSlider.noUiSlider({
 				range: [min, max]
 			}, true)
-			setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
-			loadData()
+
+			if(new Date(selectedDate).getTime() < Number($rangeSlider.val()[1]))
+			{
+				setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
+				loadData()
+			}
 		}
 	})
+
 
 	$('#filters')
 		.find('label')
