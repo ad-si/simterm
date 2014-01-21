@@ -31,7 +31,8 @@
 			size: function (data) {
 
 			}
-		}
+		},
+		modifier
 
 
 	simterm.config = function (configObject) {
@@ -87,6 +88,8 @@
 
 		layers = []
 
+		modifier = data.modifier
+
 		data.associations.forEach(function (momentObject) {
 
 			momentObject.terms.forEach(function (term) {
@@ -104,7 +107,7 @@
 
 				layers[indexDict[term.name]].values.push({
 					x: new Date(momentObject.time),
-					y: term.value / 4
+					y: term.value / modifier
 				})
 			})
 		})
@@ -154,6 +157,8 @@
 		}
 
 		function updateRendering() {
+
+			//ToDO: Clean up svg
 
 			d3
 				.selectAll("path")
@@ -316,7 +321,7 @@
 			.scale
 			.linear()
 			.domain([0, layers.length])
-			.range([height, 0])
+			.rangeRound([height, 0])
 
 
 		if (firstCall) {

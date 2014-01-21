@@ -61,7 +61,20 @@ server.get('/simterm', function (req, res, next) {
 
 				var terms = {}
 
-				//console.log(data.)
+				//calculate
+				data.modifier = data.associations.map(function(assoc){
+					return assoc.terms.map(function (term){
+						return Number(term.value)
+					}).reduce(function(p, c, i, arr){
+						return Math.max(p, c)
+					})
+				}).reduce(function (p, c, i, arr){
+						return Math.max(p, c)
+				}) / 6
+
+				console.log(data.modifier)
+
+				//create an array of all terms contained by data
 
 				data.associations.forEach(function (association) {
 					association.terms.forEach(function (term) {
@@ -69,9 +82,7 @@ server.get('/simterm', function (req, res, next) {
 					})
 				})
 
-				console.log(Object.keys(terms))
-
-				//terms.push('iPhone', 'Samsung', 'Android', 'iTunes', 'iPod', 'Apple', 'iPad', 'iOS', 'profit', 'product', 'company', 'taxes', 'Cupertino', 'device', 'tax', 'iWatch')
+				//for each terms array in data add all not contained terms for consistency
 
 				data.associations.forEach(function (assoc) {
 					Object.keys(terms).forEach(function (term) {
@@ -89,7 +100,6 @@ server.get('/simterm', function (req, res, next) {
 			/*data.associations.sort(function (a, b) {
 				return a.time - b.time
 			})*/
-
 
 			res.send(data)
 
@@ -110,7 +120,7 @@ server.get('/simterm', function (req, res, next) {
 				throw error
 
 			//console.log(JSON.parse(body).associations[1].terms)
-			console.dir(JSON.parse(body))
+			//console.dir(JSON.parse(body))
 			correctAndReturnData(JSON.parse(body))
 		}
 

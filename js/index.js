@@ -1,5 +1,12 @@
 !function () {
 
+
+	/*  ToDO:   - show timescale under steamgraph
+				- fix artefacts
+				- field to choose start and end datum
+				- intelligent scaling
+	 */
+
 	var $rangeSlider = $("#rangeSlider"),
 		searchValue = 'Apple',
 		firstLoad = true,
@@ -7,9 +14,10 @@
 
 	//TODO: get max and min values from dataset
 		min = new Date('2000-03-03').getTime(),
-		max = new Date('2010-10-10').getTime()
+		max = new Date('2013-12-10').getTime()
 
-
+		minTime.value = new Date(min)
+		maxTime.value = new Date(max)
 
 	//TODO: write min and max to slider
 
@@ -44,6 +52,20 @@
 	}
 
 
+	function loadData(){
+		simterm.loadData(function(data){
+			simterm
+				.data(data)
+				.render()
+		}, {query: {
+			keywords: searchValue,
+			from: new Date(Number($rangeSlider.val()[0])).toJSON(),
+			to: new Date(Number($rangeSlider.val()[1])).toJSON()
+		}
+		} )
+	}
+
+
 	$rangeSlider.noUiSlider({
 		range: [min, max],
 		start: [min, max],
@@ -75,21 +97,37 @@
 
 	setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
 
-	keywords.addEventListener('keypress', function(){
+	keywords.addEventListener('keypress', function(event){
 		if( event.keyCode == 13){
 			searchValue = keywords.value
-			simterm.loadData(function(data){
-				simterm
-					.data(data)
-					.render()
-			}, {query: {
-							keywords: searchValue,
-							from: new Date(Number($rangeSlider.val()[0])).toJSON(),
-							to: new Date(Number($rangeSlider.val()[1])).toJSON()
-				}
-			} )
+			loadData()
 		}
 	}, false)
+
+	minTime.addEventListener('keypress', function(event){
+		if( event.keyCode == 13){
+			min = new Date(minTime.value).getTime()
+
+			firstLoad = true
+			$rangeSlider.noUiSlider({
+				range: [min, max]
+			}, true)
+			setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
+			loadData()
+		}
+	})
+	maxTime.addEventListener('keypress', function(event){
+		if( event.keyCode == 13){
+			max = new Date(maxTime.value).getTime()
+
+			firstLoad = true
+			$rangeSlider.noUiSlider({
+				range: [min, max]
+			}, true)
+			setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
+			loadData()
+		}
+	})
 
 	$('#filters')
 		.find('label')
