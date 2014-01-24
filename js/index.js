@@ -1,7 +1,7 @@
 !function () {
 
 
-	/*  ToDO:   - show timescale under steamgraph
+	/*  TODO:   - show timescale under steamgraph
 	 - fix artefacts
 	 - field to choose start and end datum
 	 - intelligent scaling

@@ -13,48 +13,51 @@
 
 	<h1>Simterm</h1>
 
-	<input type="text" value="Apple" id="keywords">
+	<form id="filters" role="form">
 
-	<form id="filters">
-
-		<!--TODO: filter button for interpolation-->
-
-
-		<div class="btn-group" data-toggle="buttons">
-			<label class="btn btn-primary active">
-				<input type="radio" name="options" id="streamgraphFilter"> Streamgraph
-			</label>
-			<label class="btn btn-primary">
-				<input type="radio" name="options" id="stackedAreaChartFilter"> Stacked Area Chart
-			</label>
+		<div class="row">
+			<div class="form-group col-lg-4">
+				<input class="form-control input-lg" type="text" value="Apple" id="keywords"/>
+			</div>
 		</div>
 
-		<div class="btn-group" data-toggle="buttons">
-			<label class="btn btn-primary">
-				<input type="radio" name="options" id="alphabeticalFilter" value=alphabetical> Alphabetical
-			</label>
-			<label class="btn btn-primary active">
-				<input type="radio" name="options" id="insideOutFilter" value=insideOut> Inside Out
-			</label>
-			<label class="btn btn-primary">
-				<input type="radio" name="options" id="sizeFilter" value=size> Size
-			</label>
-			<label class="btn btn-primary">
-				<input type="radio" name="options" id="customFilter" value=custom> Custom
-			</label>
-		</div>
+		<div class="form-group row">
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-primary active">
+					<input type="radio" name="options" id="streamgraphFilter"> Streamgraph
+				</label>
+				<label class="btn btn-primary">
+					<input type="radio" name="options" id="stackedAreaChartFilter"> Stacked Area Chart
+				</label>
+			</div>
 
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-primary">
+					<input type="radio" name="options" id="alphabeticalFilter" value=alphabetical> Alphabetical
+				</label>
+				<label class="btn btn-primary active">
+					<input type="radio" name="options" id="insideOutFilter" value=insideOut> Inside Out
+				</label>
+				<label class="btn btn-primary">
+					<input type="radio" name="options" id="sizeFilter" value=size> Size
+				</label>
+				<label class="btn btn-primary">
+					<input type="radio" name="options" id="customFilter" value=custom> Custom
+				</label>
+			</div>
 
-		<div class="btn-group" data-toggle="buttons">
-			<label class="btn btn-primary active">
-				<input type="radio" name="options" id="baseInterpolation" value=size> Base
-			</label>
-			<label class="btn btn-primary">
-				<input type="radio" name="options" id="steppedInterpolation" value=alphabetical> Stepped
-			</label>
-			<label class="btn btn-primary">
-				<input type="radio" name="options" id="noInterpolation" value=size> None
-			</label>
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-primary active">
+					<input type="radio" name="options" id="baseInterpolation" value=size> Base
+				</label>
+				<label class="btn btn-primary">
+					<input type="radio" name="options" id="steppedInterpolation" value=alphabetical> Stepped
+				</label>
+				<label class="btn btn-primary">
+					<input type="radio" name="options" id="noInterpolation" value=size> None
+				</label>
+			</div>
+
 		</div>
 
 	</form>

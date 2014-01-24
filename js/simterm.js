@@ -122,7 +122,8 @@
 			xScaleFunc,
 			yScaleFunc,
 			areaFunc,
-			stackFunction
+			stackFunction,
+			xAxis
 
 		stackFunction = d3
 			.layout
@@ -236,7 +237,6 @@
 				.attr('width', width)
 				.attr('height', height)
 
-			console.log(layers)
 			var group = svg
 				.selectAll('path')
 				.data(stackFunction(layers))
@@ -284,6 +284,13 @@
 					return d.name
 				})
 
+
+			svg
+				.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call(xAxis)
+
 		}
 
 		function renderChangedOrder() {
@@ -323,6 +330,13 @@
 			.domain([0, layers.length])
 			.rangeRound([height, 0])
 
+
+		xAxis = d3
+			.svg
+			.axis()
+			.scale(x)
+			.tickSize(-height)
+			.tickSubdivide(true)
 
 		if (firstCall) {
 			renderInitially()
