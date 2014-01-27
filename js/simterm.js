@@ -42,7 +42,7 @@
 		return this
 	}
 
-	simterm.loadData = function (callback, urlObject) {
+	simterm.loadData = function (urlObject, callback) {
 
 		var urlObj = {
 				protocol: 'http:',
@@ -331,12 +331,14 @@
 			.rangeRound([height, 0])
 
 
+		/*
 		xAxis = d3
 			.svg
 			.axis()
 			.scale(x)
 			.tickSize(-height)
 			.tickSubdivide(true)
+			*/
 
 		if (firstCall) {
 			renderInitially()

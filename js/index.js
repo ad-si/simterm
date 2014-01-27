@@ -279,13 +279,21 @@
 	})
 
 
-	simterm.loadData(function (data) {
-		simterm
-			.data(data)
-			.render()
+	simterm.loadData(
+		{
+			query: {
+				keywords: searchValue,
+				from: new Date(min).toJSON(),
+				to: new Date(max).toJSON()}
+		},
+		function (data) {
+			simterm
+				.data(data)
+				.render()
 
-		$('#waity').hide()
-	}, {query: {keywords: searchValue, from: new Date(min).toJSON(), to: new Date(max).toJSON()}})
+			$('#waity').hide()
+		}
+	)
 
 	$('.btn')
 		.button()
