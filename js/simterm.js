@@ -30,7 +30,7 @@
 				}).reverse()
 			},
 			size: function (data) {
-			
+
 			}
 		}
 
@@ -71,6 +71,7 @@
 		$.ajax({
 			url: url,
 			error: function (data) {
+				console.log('An error occured')
 				console.log(data)
 			},
 			success: function (data) {
@@ -192,9 +193,6 @@
 		function updateRendering() {
 
 			//TODO: Clean up svg
-
-
-			console.log(config)
 
 			d3
 				.select('#streamgraph')

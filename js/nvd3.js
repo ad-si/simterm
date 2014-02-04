@@ -8,10 +8,15 @@
 	// TODO: Write min and max to slider
 
 	var $rangeSlider = $("#rangeSlider"),
-		searchValue = 'Apple',
+		$search = $('#search'),
+		$spinnerContainer = $('#spinnerContainer'),
+		searchValue = '',
 		firstLoad = true,
 		minDate = new Date('2013-11-03'),
-		maxDate = new Date('2013-12-10')
+		maxDate = new Date('2013-12-10'),
+		nvd3FirstCall = true,
+		nvd3Chart,
+		spinner
 
 
 	function setSliderLabels(lower, upper) {
@@ -60,6 +65,10 @@
 				simterm
 					.data(data)
 					.render()
+
+				renderChart(data)
+
+				spinner.stop()
 			}
 		)
 	}
@@ -88,81 +97,109 @@
 
 	function renderChart(data) {
 
-		var colors = d3.scale.category20(),
-			keyColor = function (d, i) {
-				return colors(d.key)
-			},
-			chart
 
-		nv.addGraph(function () {
+		function renderInitially() {
 
-			chart = nv
-				.models
-				.stackedAreaChart()
-				// .width(600)
-				//.height(500)
-				.useInteractiveGuideline(true)
-				.x(function (d) {
-					return d[0]
-				})
-				.y(function (d) {
-					return d[1]
-				})
-				.color(keyColor)
-				.transitionDuration(300)
-			//.clipEdge(true)
+			var colors = d3.scale.category20(),
+				keyColor = function (d, i) {
+					return colors(d.key)
+				}
 
-			// chart.stacked.scatter.clipVoronoi(false)
+			nv.addGraph(function () {
 
-			chart
-				.xAxis
-				.tickFormat(function (d) {
-					return d3.time.format('%x')(new Date(d))
-				})
+				nvd3Chart = nv
+					.models
+					.stackedAreaChart()
+					// .width(600)
+					//.height(500)
+					.useInteractiveGuideline(true)
+					.x(function (d) {
+						return d[0]
+					})
+					.y(function (d) {
+						return d[1]
+					})
+					.color(keyColor)
+					.transitionDuration(300)
+				//.clipEdge(true)
 
-			chart
-				.yAxis
-				.tickFormat(d3.format(',.2f'))
+				// chart.stacked.scatter.clipVoronoi(false)
+
+				nvd3Chart
+					.xAxis
+					.tickFormat(function (d) {
+						return d3.time.format('%x')(new Date(d))
+					})
+
+				nvd3Chart
+					.yAxis
+					.tickFormat(d3.format(',.2f'))
+
+				d3
+					.select('#nvd3Chart')
+					.append('svg')
+					.attr('id', 'nvd3Graph')
+					.attr('height', 500)
+					.datum(simterm.nvd3Data(data).nvd3layers())
+					.transition()
+					.duration(1000)
+					.call(nvd3Chart)
+
+				nvd3Chart.update()
+				// .transition()
+				// .duration(0)
+				/*
+				 .each('start', function () {
+				 setTimeout(function () {
+				 d3
+				 .selectAll('#nvd3Graph *')
+				 .each(function () {
+				 //console.log('start', this.__transition__, this)
+				 // while(this.__transition__)
+				 if (this.__transition__)
+				 this.__transition__.duration = 1
+				 })
+				 }, 0)
+				 })
+				 */
+
+				// .each('end', function() {
+				//         d3.selectAll('#chart1 *').each(function() {
+				//           console.log('end', this.__transition__, this)
+				//           // while(this.__transition__)
+				//           if(this.__transition__)
+				//             this.__transition__.duration = 1
+				//         })})
+
+				//nv
+				//	.utils
+				//	.windowResize(nvd3Chart.update)
+
+				// chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); })
+
+				return nvd3Chart
+			})
+		}
+
+		function updateRendering() {
 
 			d3
-				.select('#nvd3Chart')
-				.append('svg')
-				.attr('id', 'nvd3Graph')
-				.attr('height', 500)
+				.select('#nvd3Graph')
 				.datum(simterm.nvd3Data(data).nvd3layers())
 				.transition()
 				.duration(1000)
-				.call(chart)
-				// .transition()
-				// .duration(0)
-				.each('start', function () {
-					setTimeout(function () {
-						d3
-							.selectAll('#nvd3Graph *')
-							.each(function () {
-								//console.log('start', this.__transition__, this)
-								// while(this.__transition__)
-								if (this.__transition__)
-									this.__transition__.duration = 1
-							})
-					}, 0)
-				})
-			// .each('end', function() {
-			//         d3.selectAll('#chart1 *').each(function() {
-			//           console.log('end', this.__transition__, this)
-			//           // while(this.__transition__)
-			//           if(this.__transition__)
-			//             this.__transition__.duration = 1
-			//         })})
+				.call(nvd3Chart)
+		}
 
-			nv
-				.utils
-				.windowResize(chart.update)
 
-			// chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); })
-
-			return chart
-		})
+		if (nvd3FirstCall) {
+			renderInitially()
+			nvd3FirstCall = false
+		}
+		else {
+			updateRendering()
+			//changeOrder(layers)
+		}
 	}
 
 
@@ -181,7 +218,7 @@
 		},
 		set: function () {
 
-			$('#waity').css('display', 'block')
+			spinner = new Spinner().spin($spinnerContainer[0])
 
 			var from = new Date(Number($rangeSlider.val()[0])).toJSON(),
 				to = new Date(Number($rangeSlider.val()[1])).toJSON()
@@ -199,7 +236,9 @@
 						.data(data)
 						.render()
 
-					$('#waity').hide()
+					renderChart(data)
+
+					spinner.stop()
 				}
 			)
 		}
@@ -209,30 +248,30 @@
 
 	// TODO: On submit
 
-	//console.log($('#filters'))
 
+	$search.submit(function (event) {
 
-	$('#filters').submit(function (event) {
+		event.preventDefault()
 
-		console.log(event)
+		spinner = new Spinner().spin($spinnerContainer[0])
 
-		//event.preventDefault()
-
-		searchValue = keywords.value
+		searchValue = $search.find('input').val()
 		loadData()
 	})
 
 
+	//TODO: Merge with other
+
 	$("#minTime")
-		.attr('value', '2000-03-03')
-		.attr('min', '2000-03-03')
-		.attr('max', '2013-12-10')
+		.attr('value', '2013-11-03')
+		.attr('min', '2000-01-01')
+		.attr('max', '2014-01-01')
 		.on('change', setSliderMinMax)
 
 	$("#maxTime")
 		.attr('value', '2013-12-10')
-		.attr('min', '2000-03-03')
-		.attr('max', '2013-12-10')
+		.attr('min', '2000-01-01')
+		.attr('max', '2014-01-01')
 		.on('change', setSliderMinMax)
 
 
@@ -241,21 +280,38 @@
 		.click(function (event) {
 
 			var functionMap = {
-				'streamgraphFilter': function(){simterm.config({offset: 'silhouette'})},
-				'stackedAreaChartFilter': function(){simterm.config({offset: 'zero'})},
-				'alphabeticalFilter': function(){simterm.config({sortOrder: 'alphabetical'})},
-				'insideOutFilter': function(){simterm.config({sortOrder: 'inside-out'})},
-				'sizeFilter': function(){simterm.config({sortOrder: 'size'})},
-				'customFilter': function(){simterm.config({sortOrder: 'custom'})},
-				'baseInterpolation': function(){simterm.config({interpolation: 'basis'})},
-				'steppedInterpolation': function(){simterm.config({interpolation: 'step'})},
-				'noInterpolation': function(){simterm.config({interpolation: 'none'})}
+				streamgraphFilter: function () {
+					simterm.config({offset: 'silhouette'})
+				},
+				stackedAreaChartFilter: function () {
+					simterm.config({offset: 'zero'})
+				},
+				alphabeticalFilter: function () {
+					simterm.config({sortOrder: 'alphabetical'})
+				},
+				insideOutFilter: function () {
+					simterm.config({sortOrder: 'inside-out'})
+				},
+				sizeFilter: function () {
+					simterm.config({sortOrder: 'size'})
+				},
+				customFilter: function () {
+					simterm.config({sortOrder: 'custom'})
+				},
+				baseInterpolation: function () {
+					simterm.config({interpolation: 'basis'})
+				},
+				steppedInterpolation: function () {
+					simterm.config({interpolation: 'step'})
+				},
+				noInterpolation: function () {
+					simterm.config({interpolation: 'none'})
+				}
 			}
 
 			functionMap[$(this).find('input').attr('id')].call()
 
 			simterm.render()
-
 		})
 
 
@@ -269,6 +325,7 @@
 				.val()
 		})
 
+	searchValue = $search.find('input').val()
 
 	// Initial d3 rendering
 	simterm.loadData(

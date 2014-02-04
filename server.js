@@ -17,14 +17,14 @@ var restify = require('restify'),
 		host: 'www.blog-intelligence.com',
 		pathname: '/XSEngine/XS_Search/steamgraph.xsjs'
 	},
-	testMode = true,
+	testMode = false,
 	counter = 0
 
 
 function returnTestData(request) {
 
 	var test = fakesome.object({
-		"term": "SAP",
+		"term": request.query.keywords,
 		"associations": fakesome
 			.array(fakesome.integer(10, 100))
 			.object({

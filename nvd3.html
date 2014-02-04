@@ -14,29 +14,32 @@
 
 	<h1>Simterm</h1>
 
+	<form id="search">
+		<div class="row">
+			<div class="form-group col-lg-4">
+				<input class="form-control input-lg" type="text" value="Apple"/>
+			</div>
+			<div id="spinnerContainer"></div>
+		</div>
+	</form>
+
     <ul class="nav nav-tabs">
-        <li class="active">
+        <li>
             <a href="#nvd3" data-toggle="tab">NVD3</a>
         </li>
-        <li>
+        <li class="active">
             <a href="#d3" data-toggle="tab">D3</a>
         </li>
     </ul>
 
     <div class="tab-content">
 
-        <div class="tab-pane " id="nvd3">
+        <div class="tab-pane" id="nvd3">
             <div id="nvd3Chart"></div>
         </div>
         <div class="tab-pane active" id="d3">
 
-            <form id="filters" role="form">
-
-                <div class="row">
-                    <div class="form-group col-lg-4">
-                        <input class="form-control input-lg" type="text" value="Apple" id="keywords"/>
-                    </div>
-                </div>
+            <form id="filters">
 
                 <div class="form-group row">
                     <div class="btn-group" data-toggle="buttons">
@@ -79,57 +82,39 @@
             </form>
 
             <div id="graphWrapper">
-                <svg id="waity" width="80" height="80">
-                    <defs>
-                        <rect id="w" x="18" y="-2.5" rx="1" ry="1" width="22" height="5" fill="rgb(0,0,0)"></rect>
-                    </defs>
-                    <g id="spinnerContainer" transform="translate(40, 40)">
-                        <animateTransform id="spinnerAnimation" attributeName="transform" calcMode="discrete" type="rotate"
-                                          by="30" accumulate="sum" dur="83ms" repeatCount="indefinite"></animateTransform>
-                        <use transform="rotate(0)" opacity="0.08" xlink:href="#w"></use>
-                        <use transform="rotate(30)" opacity="0.17" xlink:href="#w"></use>
-                        <use transform="rotate(60)" opacity="0.25" xlink:href="#w"></use>
-                        <use transform="rotate(90)" opacity="0.33" xlink:href="#w"></use>
-                        <use transform="rotate(120)" opacity="0.42" xlink:href="#w"></use>
-                        <use transform="rotate(150)" opacity="0.5" xlink:href="#w"></use>
-                        <use transform="rotate(180)" opacity="0.58" xlink:href="#w"></use>
-                        <use transform="rotate(210)" opacity="0.67" xlink:href="#w"></use>
-                        <use transform="rotate(240)" opacity="0.75" xlink:href="#w"></use>
-                        <use transform="rotate(270)" opacity="0.83" xlink:href="#w"></use>
-                        <use transform="rotate(300)" opacity="0.92" xlink:href="#w"></use>
-                        <use transform="rotate(330)" opacity="1" xlink:href="#w"></use>
-                    </g>
-                </svg>
             </div>
 
-            <form id="controls" class="form-horizontal" role="form">
-
-                <div id="rangSliderWrapper">
-
-                    <div id="rangeSlider"></div>
-
-                </div>
-
-                <hr/>
-
-                <div class="form-group">
-                    <label for="minTime" class="control-label col-sm-2 ">Min</label>
-
-                    <div class="col-sm-4">
-                        <input class="form-control" type="date" id="minTime">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="maxTime" class="control-label col-sm-2">Max</label>
-
-                    <div class="col-sm-4">
-                        <input class="form-control" type="date" id="maxTime">
-                    </div>
-                </div>
-            </form>
         </div>
+
     </div>
+
+
+	<form id="controls" class="form-horizontal" role="form">
+
+		<div id="rangSliderWrapper">
+
+			<div id="rangeSlider"></div>
+
+		</div>
+
+		<hr/>
+
+		<div class="form-group">
+			<label for="minTime" class="control-label col-sm-2 ">Min</label>
+
+			<div class="col-sm-4">
+				<input class="form-control" type="date" id="minTime">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="maxTime" class="control-label col-sm-2">Max</label>
+
+			<div class="col-sm-4">
+				<input class="form-control" type="date" id="maxTime">
+			</div>
+		</div>
+	</form>
 
 
 </article>
@@ -139,6 +124,7 @@
 <script src="bower_components/nvd3/nv.d3.js"></script>
 <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
 <script src="bower_components/nouislider/jquery.nouislider.js"></script>
+<script src="bower_components/spin.js/spin.js"></script>
 <script src="js/simterm.js"></script>
 <script src="js/nvd3.js"></script>
 </body>
