@@ -13696,8 +13696,8 @@ nv.models.stackedArea = function() {
         chart.offset('zero');
         chart.order('default');
         break;
-      case 'stream':
-        chart.offset('wiggle');
+	    case 'stream':
+        chart.offset('silhouette'); //TODO: reset
         chart.order('inside-out');
         break;
       case 'stream-center':

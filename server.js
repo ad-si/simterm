@@ -16,31 +16,56 @@ var restify = require('restify'),
 		protocol: 'http',
 		host: 'www.blog-intelligence.com',
 		pathname: '/XSEngine/XS_Search/steamgraph.xsjs'
-	}
+	},
+	testMode = true,
+	counter = 0
 
 
-function returnTestData() {
+function returnTestData(request) {
 
 	var test = fakesome.object({
 		"term": "SAP",
-		"associations": fakesome.array(fakesome.integer(10, 100)).object({
-			time: function () {
-				return fakesome.date(req.query.from, req.query.to)
-			},
-			terms: function () {
-				return fakesome.array(numberOfTerms).object({
-					name: function () {
-						return getTerm()
-					},
-					value: "float(0, 1)"
-				})
-			}
-		})
+		"associations": fakesome
+			.array(fakesome.integer(10, 100))
+			.object({
+				time: function () {
+					return fakesome.date(request.query.from, request.query.to)
+				},
+				terms: function () {
+					return fakesome.array(numberOfTerms).object({
+						name: function () {
+							return getTerm()
+						},
+						value: "float(0, 1)"
+					})
+				}
+			})
 	})
 
-	test.modifier = 1.0
+	test.modifier = 1
+
+	test.associations.sort(function (a, b) {
+		return a.time - b.time
+	})
 
 	return test
+}
+
+function getTerm() {
+
+	var reset = false
+
+	if (counter % numberOfTerms == 0)
+		reset = true
+
+	var value = fakesome
+		.unique(reset)
+		//.element(["hasso", "hana", "walldorf", "database", "in-memory", "a", "b", "c", "d", "e"])
+		.element(["hasso", "hana", "walldorf", "database", "in-memory"])
+
+	counter++
+
+	return value
 }
 
 
@@ -55,25 +80,8 @@ server.get('/simterm', function (req, res) {
 
 	function correctData(data) {
 
-		var counter = 0,
-			numberOfSamples = 15
+		var numberOfSamples = 15
 
-		function getTerm() {
-
-			var reset = false
-
-			if (counter % numberOfTerms == 0)
-				reset = true
-
-			var value = fakesome
-				.unique(reset)
-				//.element(["hasso", "hana", "walldorf", "database", "in-memory", "a", "b", "c", "d", "e"])
-				.element(["hasso", "hana", "walldorf", "database", "in-memory"])
-
-			counter++
-
-			return value
-		}
 
 		function correct() {
 
@@ -111,32 +119,34 @@ server.get('/simterm', function (req, res) {
 
 		correct()
 
-		/*data.associations.sort(function (a, b) {
-		 return a.time - b.time
-		 })*/
-
 		return data
 	}
 
-	requestUrl.query = {
-		keywords: req.query.keywords,
-		from: new Date(req.query.from).getTime(),
-		to: new Date(req.query.to).getTime()
+
+	if (testMode)
+		res.send(returnTestData(req))
+
+	else {
+
+		requestUrl.query = {
+			keywords: req.query.keywords,
+			from: new Date(req.query.from).getTime(),
+			to: new Date(req.query.to).getTime()
+		}
+
+		client.get(
+
+			requestUrl.pathname + '?' + queryString.stringify(requestUrl.query),
+
+			function (error, request, response, obj) {
+
+				if (error) throw error
+
+				res.send(correctData(obj))
+			}
+		)
 	}
 
-	client.get(
-
-		requestUrl.pathname + '?' + queryString.stringify(requestUrl.query),
-
-		function (error, request, response, obj) {
-
-			if (error) throw error
-
-			res.send(correctData(obj))
-		}
-	)
-
-	//res.send(returnTestData())
 })
 
 

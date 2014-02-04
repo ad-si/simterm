@@ -208,12 +208,19 @@
 	setSliderLabels(new Date(minDate).toJSON(), new Date(maxDate).toJSON())
 
 	// TODO: On submit
-	keywords.addEventListener('keypress', function (event) {
-		if (event.keyCode == 13) {
-			searchValue = keywords.value
-			loadData()
-		}
-	}, false)
+
+	//console.log($('#filters'))
+
+
+	$('#filters').submit(function (event) {
+
+		console.log(event)
+
+		//event.preventDefault()
+
+		searchValue = keywords.value
+		loadData()
+	})
 
 
 	$("#minTime")
@@ -233,80 +240,22 @@
 		.find('label')
 		.click(function (event) {
 
-			switch ($(this).find('input').attr('id')) {
-				case 'streamgraphFilter':
-					simterm
-						.config({
-							offset: 'silhouette'
-						})
-						.render()
-					break
-				case 'stackedAreaChartFilter':
-
-					console.log('test')
-
-					simterm
-						.config({
-							offset: 'zero'
-						})
-						.render()
-					break
-
-
-				case 'alphabeticalFilter':
-					simterm
-						.config({
-							sortOrder: 'alphabetical'
-						})
-						.render()
-					break
-				case 'insideOutFilter':
-					simterm
-						.config({
-							sortOrder: 'inside-out'
-						})
-						.render()
-					break
-				case 'sizeFilter':
-					simterm
-						.config({
-							sortOrder: 'size'
-						})
-						.render()
-					break
-				case 'customFilter':
-					simterm
-						.config({
-							sortOrder: 'custom'
-						})
-						.render()
-					break
-
-
-				case 'baseInterpolation':
-					simterm
-						.config({
-							interpolation: 'basis'
-						})
-						.render()
-					break
-				case 'steppedInterpolation':
-					simterm
-						.config({
-							interpolation: 'step'
-						})
-						.render()
-					break
-				case 'noInterpolation':
-					simterm
-						.config({
-							interpolation: 'none'
-						})
-						.render()
-					break
-				default:
-					alert('No such option')
+			var functionMap = {
+				'streamgraphFilter': function(){simterm.config({offset: 'silhouette'})},
+				'stackedAreaChartFilter': function(){simterm.config({offset: 'zero'})},
+				'alphabeticalFilter': function(){simterm.config({sortOrder: 'alphabetical'})},
+				'insideOutFilter': function(){simterm.config({sortOrder: 'inside-out'})},
+				'sizeFilter': function(){simterm.config({sortOrder: 'size'})},
+				'customFilter': function(){simterm.config({sortOrder: 'custom'})},
+				'baseInterpolation': function(){simterm.config({interpolation: 'basis'})},
+				'steppedInterpolation': function(){simterm.config({interpolation: 'step'})},
+				'noInterpolation': function(){simterm.config({interpolation: 'none'})}
 			}
+
+			functionMap[$(this).find('input').attr('id')].call()
+
+			simterm.render()
+
 		})
 
 

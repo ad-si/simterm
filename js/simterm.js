@@ -30,7 +30,7 @@
 				}).reverse()
 			},
 			size: function (data) {
-
+			
 			}
 		}
 
@@ -137,7 +137,6 @@
 					indexDict[term.name] = nvd3layers.length - 1
 				}
 
-
 				nvd3layers[indexDict[term.name]].values.push([
 					new Date(momentObject.time).getTime(), // x-coordinate
 					(term.value / modifier) //y-coordinate
@@ -194,12 +193,16 @@
 
 			//TODO: Clean up svg
 
+
+			console.log(config)
+
 			d3
-				.selectAll("path")
+				.select('#streamgraph')
+				.selectAll('path')
 				.data(stackFunction(layers))
 				.transition()
 				.duration(500)
-				.attr("d", function (d) {
+				.attr('d', function (d) {
 					return areaFunc(d.values)
 				})
 		}
