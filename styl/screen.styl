@@ -15,23 +15,24 @@ body
 	height: 100%
 	font-size 14px
 	font-family Arial
+	background-color gray(200)
 	
 h1
 	font-size 2em
+	margin-bottom 1em
 
 article
-	height: 100%
 	width 900px
 	margin 0 auto
-	padding 50px 20px
-	background-color gray(200)
+	padding 2em 20px
+	background-color gray(255)
 
 
 #rangSliderWrapper
 	height 100px
 	padding 50px
 
-//TODO does * also select pseudo elements?
+
 .sliderLabel:before
 	box-sizing border-box
 	content attr(data-content)
@@ -60,3 +61,5 @@ article
 	left 600px
 	margin-top 5em
 
+.tab-pane
+	padding: 2em 0 0 0

@@ -7,6 +7,7 @@
 		firstCall = true,
 		svg,
 		layers = [],
+		nvd3layers = [],
 		config = {
 			sortOrder: 'inside-out',
 			interpolation: 'basis',
@@ -31,8 +32,7 @@
 			size: function (data) {
 
 			}
-		},
-		modifier
+		}
 
 
 	simterm.config = function (configObject) {
@@ -61,12 +61,9 @@
 
 			search = '?'
 
-			for (var key in urlObj.query) {
-				if (urlObj.query.hasOwnProperty(key)) {
-
+			for (var key in urlObj.query)
+				if (urlObj.query.hasOwnProperty(key))
 					search += key + '=' + urlObj.query[key] + '&'
-				}
-			}
 		}
 
 		var url = urlObj.protocol + urlObj.host + urlObj.pathname + search
@@ -84,7 +81,8 @@
 
 	simterm.data = function (data) {
 
-		var indexDict = {}
+		var indexDict = {},
+			modifier
 
 		layers = []
 
@@ -109,6 +107,41 @@
 					x: new Date(momentObject.time),
 					y: term.value / modifier
 				})
+			})
+		})
+
+
+		return this
+	}
+
+	simterm.nvd3Data = function (data) {
+
+		var indexDict = {},
+			modifier
+
+		nvd3layers = []
+
+		modifier = data.modifier
+
+		data.associations.forEach(function (momentObject) {
+
+			momentObject.terms.forEach(function (term) {
+
+				// Create layer if not yet defined
+				if (indexDict[term.name] === undefined) {
+					nvd3layers.push({
+						key: term.name,
+						values: []
+					})
+
+					indexDict[term.name] = nvd3layers.length - 1
+				}
+
+
+				nvd3layers[indexDict[term.name]].values.push([
+					new Date(momentObject.time).getTime(), // x-coordinate
+					(term.value / modifier) //y-coordinate
+				])
 			})
 		})
 
@@ -159,7 +192,7 @@
 
 		function updateRendering() {
 
-			//ToDO: Clean up svg
+			//TODO: Clean up svg
 
 			d3
 				.selectAll("path")
@@ -285,11 +318,13 @@
 				})
 
 
-			svg
-				.append("g")
-				.attr("class", "x axis")
-				.attr("transform", "translate(0," + height + ")")
-				.call(xAxis)
+			/*
+			 svg
+			 .append("g")
+			 .attr("class", "x axis")
+			 .attr("transform", "translate(0," + height + ")")
+			 .call(xAxis)
+			 */
 
 		}
 
@@ -332,13 +367,13 @@
 
 
 		/*
-		xAxis = d3
-			.svg
-			.axis()
-			.scale(x)
-			.tickSize(-height)
-			.tickSubdivide(true)
-			*/
+		 xAxis = d3
+		 .svg
+		 .axis()
+		 .scale(x)
+		 .tickSize(-height)
+		 .tickSubdivide(true)
+		 */
 
 		if (firstCall) {
 			renderInitially()
@@ -350,6 +385,14 @@
 		}
 
 		return this
+	}
+
+	simterm.layers = function () {
+		return layers
+	}
+
+	simterm.nvd3layers = function () {
+		return nvd3layers
 	}
 
 	/*simterm.convertToAreaChart = function () {
