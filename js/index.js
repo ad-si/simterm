@@ -16,7 +16,7 @@
 		maxDate = new Date('2013-12-10'),
 		nvd3FirstCall = true,
 		nvd3Chart,
-		spinner
+		spinner = new Spinner().spin($spinnerContainer[0])
 
 
 	function setSliderLabels(lower, upper) {
@@ -26,17 +26,14 @@
 
 		if (firstLoad) {
 
-			$rangeSlider
-				.find('.noUi-handle-lower')
-				.append('<div class=sliderLabel></div>')
-				.find('.sliderLabel')
+			$('<div class=sliderLabel></div>')
+				.appendTo($rangeSlider.find('.noUi-handle-lower'))
 				.attr('data-content', lower.substr(0, 10))
 
-			$rangeSlider
-				.find('.noUi-handle-upper')
-				.append('<div class=sliderLabel></div>')
-				.find('.sliderLabel')
+			$('<div class=sliderLabel></div>')
+				.appendTo($rangeSlider.find('.noUi-handle-upper'))
 				.attr('data-content', upper.substr(0, 10))
+
 		}
 		else {
 
@@ -53,6 +50,9 @@
 
 
 	function loadData() {
+
+		$spinnerContainer.show()
+
 		simterm.loadData(
 			{
 				query: {
@@ -68,7 +68,7 @@
 
 				renderChart(data)
 
-				spinner.stop()
+				$spinnerContainer.hide()
 			}
 		)
 	}
@@ -85,13 +85,8 @@
 			range: [new Date(min).getTime(), new Date(max).getTime()]
 		}, true)
 
-		//if(new Date(selectedDate).getTime() > Number($rangeSlider.val()[0])){
-
 		setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
 		loadData()
-
-		//}
-
 	}
 
 
@@ -205,7 +200,8 @@
 	}
 
 
-	// TODO: layers vs nvd3layers
+	$spinnerContainer.append(spinner.el)
+
 
 	$rangeSlider.noUiSlider({
 		range: [minDate.getTime(), maxDate.getTime()],
@@ -218,60 +214,32 @@
 
 			setSliderLabels(from, to)
 		},
-		set: function () {
-
-			spinner = new Spinner().spin($spinnerContainer[0])
-
-			var from = new Date(Number($rangeSlider.val()[0])).toJSON(),
-				to = new Date(Number($rangeSlider.val()[1])).toJSON()
-
-			simterm.loadData(
-				{
-					query: {
-						keywords: searchValue,
-						from: from,
-						to: to
-					}
-				},
-				function (data) {
-					simterm
-						.data(data)
-						.render()
-
-					renderChart(data)
-
-					spinner.stop()
-				}
-			)
-		}
+		set: loadData
 	})
 
 	setSliderLabels(new Date(minDate).toJSON(), new Date(maxDate).toJSON())
-
-	// TODO: On submit
 
 
 	$search.submit(function (event) {
 
 		event.preventDefault()
 
-		spinner = new Spinner().spin($spinnerContainer[0])
+		console.log(spinner)
 
 		searchValue = $search.find('input').val()
+
 		loadData()
 	})
 
 
-	//TODO: Merge with other
-
 	$("#minTime")
-		.attr('value', '2013-11-03')
+		.attr('value', minDate.toISOString().substr(0,10))
 		.attr('min', '2000-01-01')
 		.attr('max', '2014-01-01')
 		.on('change', setSliderMinMax)
 
 	$("#maxTime")
-		.attr('value', '2013-12-10')
+		.attr('value', maxDate.toISOString().substr(0,10))
 		.attr('min', '2000-01-01')
 		.attr('max', '2014-01-01')
 		.on('change', setSliderMinMax)
@@ -279,7 +247,7 @@
 
 	$('#filters')
 		.find('label')
-		.click(function (event) {
+		.click(function () {
 
 			var functionMap = {
 				streamgraphFilter: function () {
@@ -342,8 +310,6 @@
 			simterm
 				.data(data)
 				.render()
-
-			$('#waity').hide()
 		}
 	)
 
@@ -356,7 +322,12 @@
 				to: maxDate.toJSON()
 			}
 		},
-		renderChart
+		function(data){
+
+			renderChart(data)
+
+			$spinnerContainer.hide()
+		}
 	)
 
 }()
