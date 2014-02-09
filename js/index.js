@@ -1,22 +1,22 @@
 !function () {
 
-
-	/*
-	 TODO:
-	 - show timescale under steamgraph
-	 - fix artefacts
-	 - field to choose start and end datum
-	 - intelligent scaling
-	 */
-	//TODO: get max and min values from dataset
-	//TODO: write min and max to slider
-
+	// TODO: Show timescale under steamgraph
+	// TODO: Fix artefacts
+	// TODO: Field to choose start and end datum
+	// TODO: Intelligent scaling
+	// TODO: Get max and min values from dataset
+	// TODO: Write min and max to slider
 
 	var $rangeSlider = $("#rangeSlider"),
-		searchValue = 'Apple',
+		$search = $('#search'),
+		$spinnerContainer = $('#spinnerContainer'),
+		searchValue = '',
 		firstLoad = true,
-		min = new Date('2000-03-03').getTime(),
-		max = new Date('2013-12-10').getTime()
+		minDate = new Date('2013-11-03'),
+		maxDate = new Date('2013-12-10'),
+		nvd3FirstCall = true,
+		nvd3Chart,
+		spinner
 
 
 	function setSliderLabels(lower, upper) {
@@ -65,58 +65,13 @@
 				simterm
 					.data(data)
 					.render()
+
+				renderChart(data)
+
+				spinner.stop()
 			}
 		)
 	}
-
-
-	$rangeSlider.noUiSlider({
-		range: [min, max],
-		start: [min, max],
-		connect: true,
-		slide: function () {
-
-			var from = new Date(Number($rangeSlider.val()[0])).toJSON(),
-				to = new Date(Number($rangeSlider.val()[1])).toJSON()
-
-			setSliderLabels(from, to)
-		},
-		set: function () {
-
-			$('#waity').css('display', 'block')
-
-			var from = new Date(Number($rangeSlider.val()[0])).toJSON(),
-				to = new Date(Number($rangeSlider.val()[1])).toJSON()
-
-			simterm.loadData(
-				{
-					query: {
-						keywords: searchValue,
-						from: from,
-						to: to
-					}
-				},
-				function (data) {
-					simterm
-						.data(data)
-						.render()
-
-					$('#waity').hide()
-				}
-			)
-		}
-	})
-
-	setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
-
-
-	// TODO: onSubmit
-	keywords.addEventListener('keypress', function (event) {
-		if (event.keyCode == 13) {
-			searchValue = keywords.value
-			loadData()
-		}
-	}, false)
 
 
 	function setSliderMinMax() {
@@ -140,149 +95,248 @@
 	}
 
 
+	function renderChart(data) {
+
+
+		function renderInitially() {
+
+			var colors = d3.scale.category20(),
+				keyColor = function (d, i) {
+					return colors(d.key)
+				}
+
+			nv.addGraph(function () {
+
+				nvd3Chart = nv
+					.models
+					.stackedAreaChart()
+					.useInteractiveGuideline(true)
+					.x(function (d) {
+						return d[0]
+					})
+					.y(function (d) {
+						return d[1]
+					})
+					.color(keyColor)
+					.transitionDuration(300)
+
+
+				nvd3Chart
+					.xAxis
+					.tickFormat(function (d) {
+						return d3.time.format("%Y-%m-%d")(new Date(d))
+					})
+
+				nvd3Chart
+					.yAxis
+					.tickFormat(d3.format(',.2f'))
+
+				d3
+					.select('#nvd3Chart')
+					.append('svg')
+					.attr('id', 'nvd3Graph')
+					.datum(simterm.nvd3Data(data).nvd3layers())
+					.transition()
+					.duration(1000)
+					.call(nvd3Chart)
+
+/*
+
+				nv
+					.utils
+					.windowResize(nvd3Chart.update)
+*/
+
+
+				// .transition()
+				// .duration(0)
+				/*
+				 .each('start', function () {
+				 setTimeout(function () {
+				 d3
+				 .selectAll('#nvd3Graph *')
+				 .each(function () {
+				 //console.log('start', this.__transition__, this)
+				 // while(this.__transition__)
+				 if (this.__transition__)
+				 this.__transition__.duration = 1
+				 })
+				 }, 0)
+				 })
+				 */
+
+				// .each('end', function() {
+				//         d3.selectAll('#chart1 *').each(function() {
+				//           console.log('end', this.__transition__, this)
+				//           // while(this.__transition__)
+				//           if(this.__transition__)
+				//             this.__transition__.duration = 1
+				//         })})
+
+				//nv
+				//	.utils
+				//	.windowResize(nvd3Chart.update)
+
+				// chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); })
+
+				return nvd3Chart
+			})
+		}
+
+		function updateRendering() {
+
+			d3
+				.select('#nvd3Graph')
+				.datum(simterm.nvd3Data(data).nvd3layers())
+				.transition()
+				.duration(1000)
+				.call(nvd3Chart)
+		}
+
+
+		if (nvd3FirstCall) {
+			renderInitially()
+			nvd3FirstCall = false
+		}
+		else {
+			updateRendering()
+			//changeOrder(layers)
+		}
+	}
+
+
+	// TODO: layers vs nvd3layers
+
+	$rangeSlider.noUiSlider({
+		range: [minDate.getTime(), maxDate.getTime()],
+		start: [minDate.getTime(), maxDate.getTime()],
+		connect: true,
+		slide: function () {
+
+			var from = new Date(Number($rangeSlider.val()[0])).toJSON(),
+				to = new Date(Number($rangeSlider.val()[1])).toJSON()
+
+			setSliderLabels(from, to)
+		},
+		set: function () {
+
+			spinner = new Spinner().spin($spinnerContainer[0])
+
+			var from = new Date(Number($rangeSlider.val()[0])).toJSON(),
+				to = new Date(Number($rangeSlider.val()[1])).toJSON()
+
+			simterm.loadData(
+				{
+					query: {
+						keywords: searchValue,
+						from: from,
+						to: to
+					}
+				},
+				function (data) {
+					simterm
+						.data(data)
+						.render()
+
+					renderChart(data)
+
+					spinner.stop()
+				}
+			)
+		}
+	})
+
+	setSliderLabels(new Date(minDate).toJSON(), new Date(maxDate).toJSON())
+
+	// TODO: On submit
+
+
+	$search.submit(function (event) {
+
+		event.preventDefault()
+
+		spinner = new Spinner().spin($spinnerContainer[0])
+
+		searchValue = $search.find('input').val()
+		loadData()
+	})
+
+
+	//TODO: Merge with other
+
 	$("#minTime")
-		.attr('value', '2000-03-03')
-		.attr('min', '2000-03-03')
-		.attr('max', '2013-12-10')
+		.attr('value', '2013-11-03')
+		.attr('min', '2000-01-01')
+		.attr('max', '2014-01-01')
 		.on('change', setSliderMinMax)
 
 	$("#maxTime")
 		.attr('value', '2013-12-10')
-		.attr('min', '2000-03-03')
-		.attr('max', '2013-12-10')
+		.attr('min', '2000-01-01')
+		.attr('max', '2014-01-01')
 		.on('change', setSliderMinMax)
-
-	/*
-	 $("#minTime").datepicker({
-	 changeYear: true,
-	 changeMonth: true,
-	 numberOfMonths: 1,
-	 maxDate: new Date(max-1),
-	 dateFormat: "dd.mm.yy",
-	 onSelect: function (selectedDate) {
-	 min = new Date(selectedDate).getTime()
-	 minTime.value = new Date(selectedDate).toJSON().substr(0, 10)
-	 firstLoad = true
-	 $rangeSlider.noUiSlider({
-	 range: [min, max]
-	 }, true)
-
-	 if(new Date(selectedDate).getTime() > Number($rangeSlider.val()[0]))
-	 {
-	 setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
-	 loadData()
-	 }
-	 }
-	 })
-
-	 $("#maxTime").datepicker({
-	 changeYear: true,
-	 changeMonth: true,
-	 numberOfMonths: 1,
-	 minDate: new Date(min+1),
-	 maxDate: 0,
-	 dateFormat: "dd.mm.yy",
-	 onSelect: function (selectedDate) {
-	 max = new Date(selectedDate).getTime()
-	 maxTime.value = new Date(selectedDate).toJSON().substr(0, 10)
-	 firstLoad = true
-	 $rangeSlider.noUiSlider({
-	 range: [min, max]
-	 }, true)
-
-	 if(new Date(selectedDate).getTime() < Number($rangeSlider.val()[1]))
-	 {
-	 setSliderLabels(new Date(min).toJSON(), new Date(max).toJSON())
-	 loadData()
-	 }
-	 }
-	 })
-	 */
 
 
 	$('#filters')
 		.find('label')
 		.click(function (event) {
-			switch ($(this).find('input').attr('id')) {
-				case 'streamgraphFilter':
-					simterm
-						.config({
-							offset: 'silhouette'
-						})
-						.render()
-					break
-				case 'stackedAreaChartFilter':
-					simterm
-						.config({
-							offset: 'zero'
-						})
-						.render()
-					break
 
-
-				case 'alphabeticalFilter':
-					simterm
-						.config({
-							sortOrder: 'alphabetical'
-						})
-						.render()
-					break
-				case 'insideOutFilter':
-					simterm
-						.config({
-							sortOrder: 'inside-out'
-						})
-						.render()
-					break
-				case 'sizeFilter':
-					simterm
-						.config({
-							sortOrder: 'size'
-						})
-						.render()
-					break
-				case 'customFilter':
-					simterm
-						.config({
-							sortOrder: 'custom'
-						})
-						.render()
-					break
-
-
-				case 'baseInterpolation':
-					simterm
-						.config({
-							interpolation: 'basis'
-						})
-						.render()
-					break
-				case 'steppedInterpolation':
-					simterm
-						.config({
-							interpolation: 'step'
-						})
-						.render()
-					break
-				case 'noInterpolation':
-					simterm
-						.config({
-							interpolation: 'none'
-						})
-						.render()
-					break
-				default:
-					alert('No such option')
+			var functionMap = {
+				streamgraphFilter: function () {
+					simterm.config({offset: 'silhouette'})
+				},
+				stackedAreaChartFilter: function () {
+					simterm.config({offset: 'zero'})
+				},
+				alphabeticalFilter: function () {
+					simterm.config({sortOrder: 'alphabetical'})
+				},
+				insideOutFilter: function () {
+					simterm.config({sortOrder: 'inside-out'})
+				},
+				sizeFilter: function () {
+					simterm.config({sortOrder: 'size'})
+				},
+				customFilter: function () {
+					simterm.config({sortOrder: 'custom'})
+				},
+				baseInterpolation: function () {
+					simterm.config({interpolation: 'basis'})
+				},
+				steppedInterpolation: function () {
+					simterm.config({interpolation: 'step'})
+				},
+				noInterpolation: function () {
+					simterm.config({interpolation: 'none'})
+				}
 			}
+
+			functionMap[$(this).find('input').attr('id')].call()
+
+			simterm.render()
 		})
 
 
+	// Event listener for filters
+	$('.btn')
+		.button()
+		.on('change', function () {
+
+			$(this)
+				.find('input')
+				.val()
+		})
+
+	searchValue = $search.find('input').val()
+
+	// Initial d3 rendering
 	simterm.loadData(
 		{
 			query: {
 				keywords: searchValue,
-				from: new Date(min).toJSON(),
-				to: new Date(max).toJSON()}
+				from: minDate.toJSON(),
+				to: maxDate.toJSON()
+			}
 		},
 		function (data) {
 			simterm
@@ -293,12 +347,16 @@
 		}
 	)
 
-	$('.btn')
-		.button()
-		.on('change', function () {
+	// Initial nvd3 rendering
+	simterm.loadData(
+		{
+			query: {
+				keywords: searchValue,
+				from: minDate.toJSON(),
+				to: maxDate.toJSON()
+			}
+		},
+		renderChart
+	)
 
-			$(this)
-				.find('input')
-				.val()
-		})
 }()
