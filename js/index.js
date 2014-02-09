@@ -51,6 +51,9 @@
 				}
 			},
 			function (data) {
+
+				$spinnerContainer.hide()
+
 				simterm
 					.data(data)
 					.render()
@@ -58,8 +61,14 @@
 				simterm
 					.nvd3Data(data)
 					.renderNvd3()
+			},
+			function(data){
 
 				$spinnerContainer.hide()
+
+				$('#notifications').show()
+
+				console.error(data)
 			}
 		)
 	}

@@ -47,7 +47,7 @@
 		return this
 	}
 
-	simterm.loadData = function (urlObject, callback) {
+	simterm.loadData = function (urlObject, successCallback, errorCallback) {
 
 		var urlObj = {
 				protocol: 'http:',
@@ -76,11 +76,13 @@
 		$.ajax({
 			url: url,
 			error: function (data) {
-				console.log('An error occured')
-				console.log(data)
+
+				errorCallback(data)
+
+				console.error(data)
 			},
 			success: function (data) {
-				callback(data)
+				successCallback(data)
 			}
 		})
 	}
