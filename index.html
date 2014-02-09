@@ -18,13 +18,13 @@
 
 	<form id="search">
 		<div class="row">
-			<div class="form-group col-lg-4">
+			<div class="form-group col-xs-4">
 				<input class="form-control input-lg" type="text" value="Apple"/>
 			</div>
 			<div id="spinnerContainer"></div>
-			<div id="notifications" class="alert alert-danger col-lg-7 alert-dismissable">
-				<p>Sorry, but the server can't process your query at the moment.</p>
-				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			<div id="notifications" class="alert alert-danger col-xs-6 alert-dismissable">
+				Sorry, but the server can't process your query right now.
+				<button type="button" class="close">&times;</button>
 			</div>
 		</div>
 	</form>
@@ -47,41 +47,41 @@
 
             <form id="filters">
 
-                <div class="form-group row">
+                <div class="form-group">
                     <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-primary active">
+                        <label class="btn btn-default active">
                             <input type="radio" name="options" id="streamgraphFilter"> Streamgraph
                         </label>
-                        <label class="btn btn-primary">
+                        <label class="btn btn-default">
                             <input type="radio" name="options" id="stackedAreaChartFilter"> Stacked Area Chart
                         </label>
                     </div>
 
                     <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-primary">
+                        <label class="btn btn-default">
                             <input type="radio" name="options" id="alphabeticalFilter" value=alphabetical> Alphabetical
                         </label>
-                        <label class="btn btn-primary active">
+                        <label class="btn btn-default active">
                             <input type="radio" name="options" id="insideOutFilter" value=insideOut> Inside Out
                         </label>
 	                    <!--
-                        <label class="btn btn-primary">
+                        <label class="btn btn-default">
                             <input type="radio" name="options" id="sizeFilter" value=size> Size
                         </label>
-                        <label class="btn btn-primary">
+                        <label class="btn btn-default">
                             <input type="radio" name="options" id="customFilter" value=custom> Custom
                         </label>
                         -->
                     </div>
 
                     <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-primary active">
+                        <label class="btn btn-default active">
                             <input type="radio" name="options" id="baseInterpolation" value=size> Base
                         </label>
-                        <label class="btn btn-primary">
+                        <label class="btn btn-default">
                             <input type="radio" name="options" id="steppedInterpolation" value=alphabetical> Stepped
                         </label>
-                        <label class="btn btn-primary">
+                        <label class="btn btn-default">
                             <input type="radio" name="options" id="noInterpolation" value=size> None
                         </label>
                     </div>

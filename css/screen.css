@@ -61,6 +61,7 @@ article {
 #spinnerContainer {
   display: inline-block;
   margin-left: 2em;
+  vertical-align: bottom;
 }
 .tab-pane {
   padding: 2em 0 0 0;
@@ -71,4 +72,7 @@ article {
 }
 #notifications {
   display: none;
+}
+#search {
+  height: 80px;
 }

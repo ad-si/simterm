@@ -75,11 +75,9 @@
 
 		$.ajax({
 			url: url,
-			error: function (data) {
+			error: function () {
 
-				errorCallback(data)
-
-				console.error(data)
+				errorCallback.apply(this, arguments)
 			},
 			success: function (data) {
 				successCallback(data)

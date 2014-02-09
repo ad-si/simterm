@@ -3,6 +3,7 @@
 	var $rangeSlider = $("#rangeSlider"),
 		$search = $('#search'),
 		$spinnerContainer = $('#spinnerContainer'),
+		$notifications = $('#notifications'),
 		firstLoad = true,
 		minDate = new Date('2013-11-03'),
 		maxDate = new Date('2013-12-10')
@@ -41,6 +42,7 @@
 	function loadData() {
 
 		$spinnerContainer.show()
+		$notifications.hide()
 
 		simterm.loadData(
 			{
@@ -62,13 +64,12 @@
 					.nvd3Data(data)
 					.renderNvd3()
 			},
-			function(data){
+			function (request, textStatus, error) {
 
 				$spinnerContainer.hide()
+				$notifications.show()
 
-				$('#notifications').show()
-
-				console.error(data)
+				console.log(error)
 			}
 		)
 	}
@@ -118,13 +119,13 @@
 
 
 	$("#minTime")
-		.attr('value', minDate.toISOString().substr(0,10))
+		.attr('value', minDate.toISOString().substr(0, 10))
 		.attr('min', '2000-01-01')
 		.attr('max', '2014-01-01')
 		.on('change', setSliderMinMax)
 
 	$("#maxTime")
-		.attr('value', maxDate.toISOString().substr(0,10))
+		.attr('value', maxDate.toISOString().substr(0, 10))
 		.attr('min', '2000-01-01')
 		.attr('max', '2014-01-01')
 		.on('change', setSliderMinMax)
@@ -180,12 +181,20 @@
 				.val()
 		})
 
-	$('#logo').click(function(event){
 
-		event.preventDefault(true)
+	$('#logo')
+		.click(function (event) {
 
-		location.reload(true)
-	})
+			event.preventDefault(true)
+
+			location.reload(true)
+		})
+
+	$notifications
+		.find('button')
+		.click(function () {
+			$notifications.hide()
+		})
 
 
 	// Initial rendering
