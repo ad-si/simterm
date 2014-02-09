@@ -1,12 +1,5 @@
 !function () {
 
-	// TODO: Show timescale under steamgraph
-	// TODO: Fix artefacts
-	// TODO: Field to choose start and end datum
-	// TODO: Intelligent scaling
-	// TODO: Get max and min values from dataset
-	// TODO: Write min and max to slider
-
 	var $rangeSlider = $("#rangeSlider"),
 		$search = $('#search'),
 		$spinnerContainer = $('#spinnerContainer'),
@@ -201,7 +194,6 @@
 
 
 	$spinnerContainer.append(spinner.el)
-
 
 	$rangeSlider.noUiSlider({
 		range: [minDate.getTime(), maxDate.getTime()],

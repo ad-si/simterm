@@ -117,12 +117,9 @@
 
 	simterm.nvd3Data = function (data) {
 
-		var indexDict = {},
-			modifier
+		var indexDict = {}
 
 		nvd3layers = []
-
-		modifier = data.modifier
 
 		data.associations.forEach(function (momentObject) {
 
@@ -140,7 +137,7 @@
 
 				nvd3layers[indexDict[term.name]].values.push([
 					new Date(momentObject.time).getTime(), // x-coordinate
-					(term.value / modifier) //y-coordinate
+					term.value //y-coordinate
 				])
 			})
 		})

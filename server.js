@@ -23,7 +23,27 @@ var restify = require('restify'),
 
 function returnTestData(request) {
 
-	var test = fakesome.object({
+	var data
+
+	function getTerm() {
+
+		var reset = false
+
+		if (counter % numberOfTerms == 0)
+			reset = true
+
+		var value = fakesome
+			.unique(reset)
+			//.element(["hasso", "hana", "walldorf", "database", "in-memory", "a", "b", "c", "d", "e"])
+			.element(["hasso", "hana", "walldorf", "database", "in-memory"])
+
+		counter++
+
+		return value
+	}
+
+
+	data = fakesome.object({
 		"term": request.query.keywords,
 		"associations": fakesome
 			.array(fakesome.integer(10, 100))
@@ -42,30 +62,13 @@ function returnTestData(request) {
 			})
 	})
 
-	test.modifier = 1
+	data.modifier = 1
 
-	test.associations.sort(function (a, b) {
+	data.associations.sort(function (a, b) {
 		return a.time - b.time
 	})
 
-	return test
-}
-
-function getTerm() {
-
-	var reset = false
-
-	if (counter % numberOfTerms == 0)
-		reset = true
-
-	var value = fakesome
-		.unique(reset)
-		//.element(["hasso", "hana", "walldorf", "database", "in-memory", "a", "b", "c", "d", "e"])
-		.element(["hasso", "hana", "walldorf", "database", "in-memory"])
-
-	counter++
-
-	return value
+	return data
 }
 
 
@@ -80,44 +83,36 @@ server.get('/simterm', function (req, res) {
 
 	function correctData(data) {
 
-		var numberOfSamples = 15
+		var terms = {}
 
-
-		function correct() {
-
-			var terms = {}
-
-			//calculate
-			data.modifier = data.associations.map(function (assoc) {
-				return assoc.terms.map(function (term) {
-					return Number(term.value)
-				}).reduce(function (p, c, i, arr) {
-						return Math.max(p, c)
-					})
+		//calculate
+		data.modifier = data.associations.map(function (assoc) {
+			return assoc.terms.map(function (term) {
+				return Number(term.value)
 			}).reduce(function (p, c, i, arr) {
 					return Math.max(p, c)
-				}) / 6
-
-			//create an array of all terms contained by data
-			data.associations.forEach(function (association) {
-				association.terms.forEach(function (term) {
-					terms[term.name] = true
 				})
-			})
+		}).reduce(function (p, c, i, arr) {
+				return Math.max(p, c)
+			}) / 6
 
-			//for each terms array in data add all not contained terms for consistency
-			data.associations.forEach(function (assoc) {
-				Object.keys(terms).forEach(function (term) {
-					if (assoc.terms.filter(function (term2) {
-						return term2.name == term
-					}).length < 1) {
-						assoc.terms.push({name: term, value: 0})
-					}
-				})
+		//create an array of all terms contained by data
+		data.associations.forEach(function (association) {
+			association.terms.forEach(function (term) {
+				terms[term.name] = true
 			})
-		}
+		})
 
-		correct()
+		//for each terms array in data add all not contained terms for consistency
+		data.associations.forEach(function (assoc) {
+			Object.keys(terms).forEach(function (term) {
+				if (assoc.terms.filter(function (term2) {
+					return term2.name == term
+				}).length < 1) {
+					assoc.terms.push({name: term, value: 0})
+				}
+			})
+		})
 
 		return data
 	}
