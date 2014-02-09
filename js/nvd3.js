@@ -110,8 +110,6 @@
 				nvd3Chart = nv
 					.models
 					.stackedAreaChart()
-					// .width(600)
-					//.height(500)
 					.useInteractiveGuideline(true)
 					.x(function (d) {
 						return d[0]
@@ -121,14 +119,12 @@
 					})
 					.color(keyColor)
 					.transitionDuration(300)
-				//.clipEdge(true)
 
-				// chart.stacked.scatter.clipVoronoi(false)
 
 				nvd3Chart
 					.xAxis
 					.tickFormat(function (d) {
-						return d3.time.format('%x')(new Date(d))
+						return d3.time.format("%Y-%m-%d")(new Date(d))
 					})
 
 				nvd3Chart
@@ -139,13 +135,17 @@
 					.select('#nvd3Chart')
 					.append('svg')
 					.attr('id', 'nvd3Graph')
-					.attr('height', 500)
 					.datum(simterm.nvd3Data(data).nvd3layers())
 					.transition()
 					.duration(1000)
 					.call(nvd3Chart)
 
-				nvd3Chart.update()
+
+				nv
+					.utils
+					.windowResize(nvd3Chart.update)
+
+
 				// .transition()
 				// .duration(0)
 				/*
