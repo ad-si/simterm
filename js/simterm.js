@@ -3,11 +3,16 @@
 	var simterm = {},
 		width = 800,
 		height = 400,
-		colors = ['coral', 'chocolate', 'yellow', 'firebrick', 'orange', 'red', 'purple', 'indianred', 'crimson', 'tomato'],
+		colors = [
+			'coral', 'chocolate', 'yellow', 'firebrick', 'orange', 'red', 'purple',
+			'indianred', 'crimson', 'tomato', 'bisque', 'peru', 'salmon', 'tan'
+		],
 		firstCall = true,
 		svg,
 		layers = [],
 		nvd3layers = [],
+		nvd3FirstCall = true,
+		nvd3Chart,
 		config = {
 			sortOrder: 'inside-out',
 			interpolation: 'basis',
@@ -108,37 +113,6 @@
 					x: new Date(momentObject.time),
 					y: term.value / modifier
 				})
-			})
-		})
-
-
-		return this
-	}
-
-	simterm.nvd3Data = function (data) {
-
-		var indexDict = {}
-
-		nvd3layers = []
-
-		data.associations.forEach(function (momentObject) {
-
-			momentObject.terms.forEach(function (term) {
-
-				// Create layer if not yet defined
-				if (indexDict[term.name] === undefined) {
-					nvd3layers.push({
-						key: term.name,
-						values: []
-					})
-
-					indexDict[term.name] = nvd3layers.length - 1
-				}
-
-				nvd3layers[indexDict[term.name]].values.push([
-					new Date(momentObject.time).getTime(), // x-coordinate
-					term.value //y-coordinate
-				])
 			})
 		})
 
@@ -385,42 +359,108 @@
 		return this
 	}
 
-	simterm.layers = function () {
-		return layers
+
+	simterm.nvd3Data = function (data) {
+
+		var indexDict = {}
+
+		nvd3layers = []
+
+		data.associations.forEach(function (momentObject) {
+
+			momentObject.terms.forEach(function (term) {
+
+				// Create layer if not yet defined
+				if (indexDict[term.name] === undefined) {
+					nvd3layers.push({
+						key: term.name,
+						values: []
+					})
+
+					indexDict[term.name] = nvd3layers.length - 1
+				}
+
+				nvd3layers[indexDict[term.name]].values.push([
+					new Date(momentObject.time).getTime(), // x-coordinate
+					term.value //y-coordinate
+				])
+			})
+		})
+
+
+		return this
 	}
 
-	simterm.nvd3layers = function () {
-		return nvd3layers
+	simterm.renderNvd3 = function () {
+
+
+		function renderInitially() {
+
+			var colors = d3.scale.category20(),
+				keyColor = function (d, i) {
+					return colors(d.key)
+				}
+
+			nv
+				.addGraph(function () {
+
+					nvd3Chart = nv
+						.models
+						.stackedAreaChart()
+						.useInteractiveGuideline(true)
+						.x(function (d) {
+							return d[0]
+						})
+						.y(function (d) {
+							return d[1]
+						})
+						.color(keyColor)
+						.transitionDuration(300)
+
+
+					nvd3Chart
+						.xAxis
+						.tickFormat(function (d) {
+							return d3.time.format("%Y-%m-%d")(new Date(d))
+						})
+
+					nvd3Chart
+						.yAxis
+						.tickFormat(d3.format(',.2f'))
+
+					d3
+						.select('#nvd3Chart')
+						.append('svg')
+						.attr('id', 'nvd3Graph')
+						.datum(nvd3layers)
+						.transition()
+						.duration(1000)
+						.call(nvd3Chart)
+
+					return nvd3Chart
+				})
+		}
+
+		function updateRendering() {
+
+			d3
+				.select('#nvd3Graph')
+				.datum(nvd3layers)
+				.transition()
+				.duration(1000)
+				.call(nvd3Chart)
+		}
+
+
+		if (nvd3FirstCall) {
+			renderInitially()
+			nvd3FirstCall = false
+		}
+		else {
+			updateRendering()
+		}
 	}
-
-	/*simterm.convertToAreaChart = function () {
-
-	 var stackedAreaChartFunc = d3
-	 .layout
-	 .stack()
-	 //.order('inside-out')
-	 .offset('zero')
-	 .values(function (d) {
-	 return d.values
-	 })
-
-
-	 d3
-	 .selectAll("path")
-	 .data(stackedAreaChartFunc(layers))
-	 .transition()
-	 .duration(500)
-	 .attr("d", function (d) {
-	 return areaFunc(d.values)
-	 })
-	 }*/
 
 
 	window.simterm = simterm
-
 }()
-
-
-//simterm
-//	.loadData()
-//	.

@@ -3,13 +3,9 @@
 	var $rangeSlider = $("#rangeSlider"),
 		$search = $('#search'),
 		$spinnerContainer = $('#spinnerContainer'),
-		searchValue = '',
 		firstLoad = true,
 		minDate = new Date('2013-11-03'),
-		maxDate = new Date('2013-12-10'),
-		nvd3FirstCall = true,
-		nvd3Chart,
-		spinner = new Spinner().spin($spinnerContainer[0])
+		maxDate = new Date('2013-12-10')
 
 
 	function setSliderLabels(lower, upper) {
@@ -49,7 +45,7 @@
 		simterm.loadData(
 			{
 				query: {
-					keywords: searchValue,
+					keywords: $search.find('input').val(),
 					from: new Date(Number($rangeSlider.val()[0])).toJSON(),
 					to: new Date(Number($rangeSlider.val()[1])).toJSON()
 				}
@@ -59,7 +55,9 @@
 					.data(data)
 					.render()
 
-				renderChart(data)
+				simterm
+					.nvd3Data(data)
+					.renderNvd3()
 
 				$spinnerContainer.hide()
 			}
@@ -83,117 +81,7 @@
 	}
 
 
-	function renderChart(data) {
-
-
-		function renderInitially() {
-
-			var colors = d3.scale.category20(),
-				keyColor = function (d, i) {
-					return colors(d.key)
-				}
-
-			nv.addGraph(function () {
-
-				nvd3Chart = nv
-					.models
-					.stackedAreaChart()
-					.useInteractiveGuideline(true)
-					.x(function (d) {
-						return d[0]
-					})
-					.y(function (d) {
-						return d[1]
-					})
-					.color(keyColor)
-					.transitionDuration(300)
-
-
-				nvd3Chart
-					.xAxis
-					.tickFormat(function (d) {
-						return d3.time.format("%Y-%m-%d")(new Date(d))
-					})
-
-				nvd3Chart
-					.yAxis
-					.tickFormat(d3.format(',.2f'))
-
-				d3
-					.select('#nvd3Chart')
-					.append('svg')
-					.attr('id', 'nvd3Graph')
-					.datum(simterm.nvd3Data(data).nvd3layers())
-					.transition()
-					.duration(1000)
-					.call(nvd3Chart)
-
-/*
-
-				nv
-					.utils
-					.windowResize(nvd3Chart.update)
-*/
-
-
-				// .transition()
-				// .duration(0)
-				/*
-				 .each('start', function () {
-				 setTimeout(function () {
-				 d3
-				 .selectAll('#nvd3Graph *')
-				 .each(function () {
-				 //console.log('start', this.__transition__, this)
-				 // while(this.__transition__)
-				 if (this.__transition__)
-				 this.__transition__.duration = 1
-				 })
-				 }, 0)
-				 })
-				 */
-
-				// .each('end', function() {
-				//         d3.selectAll('#chart1 *').each(function() {
-				//           console.log('end', this.__transition__, this)
-				//           // while(this.__transition__)
-				//           if(this.__transition__)
-				//             this.__transition__.duration = 1
-				//         })})
-
-				//nv
-				//	.utils
-				//	.windowResize(nvd3Chart.update)
-
-				// chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); })
-
-				return nvd3Chart
-			})
-		}
-
-		function updateRendering() {
-
-			d3
-				.select('#nvd3Graph')
-				.datum(simterm.nvd3Data(data).nvd3layers())
-				.transition()
-				.duration(1000)
-				.call(nvd3Chart)
-		}
-
-
-		if (nvd3FirstCall) {
-			renderInitially()
-			nvd3FirstCall = false
-		}
-		else {
-			updateRendering()
-			//changeOrder(layers)
-		}
-	}
-
-
-	$spinnerContainer.append(spinner.el)
+	new Spinner().spin($spinnerContainer[0])
 
 	$rangeSlider.noUiSlider({
 		range: [minDate.getTime(), maxDate.getTime()],
@@ -215,10 +103,6 @@
 	$search.submit(function (event) {
 
 		event.preventDefault()
-
-		console.log(spinner)
-
-		searchValue = $search.find('input').val()
 
 		loadData()
 	})
@@ -287,39 +171,15 @@
 				.val()
 		})
 
-	searchValue = $search.find('input').val()
+	$('#logo').click(function(event){
 
-	// Initial d3 rendering
-	simterm.loadData(
-		{
-			query: {
-				keywords: searchValue,
-				from: minDate.toJSON(),
-				to: maxDate.toJSON()
-			}
-		},
-		function (data) {
-			simterm
-				.data(data)
-				.render()
-		}
-	)
+		event.preventDefault(true)
 
-	// Initial nvd3 rendering
-	simterm.loadData(
-		{
-			query: {
-				keywords: searchValue,
-				from: minDate.toJSON(),
-				to: maxDate.toJSON()
-			}
-		},
-		function(data){
+		location.reload(true)
+	})
 
-			renderChart(data)
 
-			$spinnerContainer.hide()
-		}
-	)
+	// Initial rendering
+	loadData()
 
 }()
