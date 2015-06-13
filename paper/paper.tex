@@ -1,0 +1,197 @@
+\documentclass{llncs}
+
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{comment}
+\usepackage{indentfirst}
+\usepackage{subfigure}
+
+\begin{comment}
+new command for line break after paragraph heading
+\end{comment}
+\newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
+
+\title{Similar Terms Visualization}
+
+\author{Stephan Detje, Jan Selke, Adrian Sieber}
+\institute{Hasso-Plattner-Institute Potsdam}
+
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+In the following article we strive to describe our technique of visualizing Blogosphere data. This technique is applying a streamgraph on term-frequency values of various blogs. Therefore we will specify our environment including a SAP Hana In-Memory-Database and a server. Also we will specify the Frameworks we used for our Project which e.g. include D3, JQuery and Bower. In conclusion we will point out the various benefits of our approach and possible improvements.
+\end{abstract}
+
+\section{Introduction}
+
+Analyzing social media, in particular the Blogosphere, can improve your understanding of recent topics on the internet. Crawling the internet and collecting lots of data within weblogs is the first necessary step to take. Once you have collected a sufficient amount of data it still remains difficult to get an overview of it. Also it is hard to draw conclusions just by merely running through data sets. Thus, there is a need to visualize that data.
+
+
+
+The BlogIntelligence Project has crawled the web and gathered massive data on weblogs. Their website is shown in Figure 1. They created a huge database with millions of entries, analyzed and processed in realtime on the HANA In-Memory-Database To use this data efficiently there is a great need to find an appropriate way of presenting it. Also it is necessary to filter the data to focus on special aspects. This focusing enables the user to detect bursts and distinctive features, improving the chance of recognizing trends.
+
+\begin{figure}[h!]
+\caption{\label{fig:biwebsite}}The BlogIntelligence website.
+  \centering
+  \includegraphics[width=0.75\textwidth]{biwebsite.PNG}
+\end{figure}
+
+\section{Use case}
+\label{sec:examples}
+
+\subsection{The given Data}
+
+The data we strive to visualize is saved in a SAP Hana database. It was collected over several years and consists of entries for various blogs and their posts. This data can be searched and evaluated. We need to extract data dependent on a specific search term, a start time and an end time. Therefore we compute similar terms to the given term and calculate their frequencies for each day in the limited time interval. An example data set is given in figure 2. 
+\todo{describe better}
+\begin{figure}[h!]
+\caption{\label{fig:data}Sample data for the Term "apple".}
+  \centering
+  \includegraphics[width=1.0\textwidth]{data2.PNG}
+\end{figure}
+
+\subsection{Visualizing}
+Being given the massive amount of blog data we intend to visualize it using an appropriate graph format. This format must provide the possibility to view detailed values for a specific term and their change over time. Additionally it would be beneficial if the same diagram would support insights on the larger context of every moment and how the different terms, that are connected to the looked up subject, evolved. To fulfill these requirements we considered many different types of diagrams, which eventually lead us to focus on two distinctive diagram types that will be discussed in this section:
+- 
+
+\myparagraph{Stacked Area Chart}
+The stacked Area Chart is closely related to the line chart and therefore highly appropriate to show the historical changes of a dataset. In contrast to the traditional line-chart the area below the line of a graph belonging to a term is filled with color. This area chart can feature not only one but many different terms. The different areas are then stacked upon each other, thus the name of the chart. The horizontal axis marks the time and the vertical axis expresses the frequency of a term being mentioned together with the search term. All areas from the connected terms together reflect the total amount of mentions for the looked up term at a given moment. 
+
+Since all values are based on the zero-level of the horizontal axis, it is very easy to read the total amount of occurrences from the top of the graph. However, the value for a single term, that has its area placed somewhere in the inner of the stacked area graph is much harder to determine. This is due to the stacking of all the different terms, which has a visually interfering effect on their values. 
+
+For a dataset that consists of discrete values there is the option of interpolation, so the stacked area charts optical quality can be improved. To put emphasis on the values of certain terms it is also possible to change the stacking-algorithm for the layering of the different areas.
+
+\myparagraph{Streamgraph}
+
+A streamgraph is a way more organic approach. Again the similar terms connected to the search-term are displayed. But instead of being stacked upon each other from a fixed bottom-axis the different layers are placed around a central axis, which results in a more flowing shape. The horizontal axis marks the time. Every vertical layer in the graph represents the stream of data from a single connected term. The thicker a layer is, the more frequent the term which belongs to said layer is mentioned together with the looked up term at that moment. So the total vertical extend of the graph reflects how often the looked up term was mentioned together with all of the similar terms at that moment.
+
+Thereby it is a lot easier to estimate the relative change of the frequency at which the term was being mentioned in total over time. On the other hand the difficulty to read the absolute value of a terms frequency at a given moment is slightly increased, since the graph is covering both sides of the horizontal, central axis.
+
+Similar to a stacked area chart a streamgraph can also feature interpolation, so the overall appearance is less edgy and has fewer spikes, making it even more fluid and organic. The sorting of the different layers is also adjustable and can be optimized to increase visual appeal of the graph. 
+
+
+noch todo: verweis auf paper von lee byron 
+
+
+
+Considering the benefits of the two approaches we decided to employ both graph formats, so that the users can choose their preferred one.
+
+
+\subsection{What can users gain?}
+To Demonstrate what a user can achieve with this kind of visualization for huge datasets from social media we will provide a basic use case in the following section: 
+
+
+If the user wants to know how a certain term is connected with other terms in the blogosphere, he can search for this term in the database and the application will then draw a chart of the most important similar terms. The user is then able to adjust the time frame for the dataset, either by entering concrete dates for minimum and maximum into the date-picker or by using the slider below the chart so that he can focus on the information for the searched term during a time period he is actually interested in and does not have to bother with data that is not useful for his scope.
+
+
+In case the user wants to find out during which times a certain term was being heavily discussed in the blogosphere, all he has to do is to search the term and look for the horizontal peaks in the chart. When the user wants to find out more about how often the searched term is occurring together with one of the similar terms, he can either have a look at the width of the layer of that term or for more details he can hoover the mouse cursor over the chart, which will open a detailed tooltip with the exact values for all the connected terms. The overall change in the connected term's frequency of occurring together with the looked up term is being reflected by the slope of the curve for that term's layer. That means if the layer gets wider the similar term is more frequently mentioned for the searched term, while a more narrow layer indicates that the term is less connected to the looked up one. The width of the whole curve represents the total amount of mentions for the searched term, which indirectly means the importance of the topic within the blogosphere.
+
+
+The potential user might as well interact further with the created chart. He can freely switch between the streamgraph visualization and the stacked area chart. Apart from that he is able to change the sorting of the different layers within the chart. For example it is possible to sort by alphabetical order of the occurring terms or to begin the stacking with the highest value, so that the biggest area is at the center of the streamgraph or at the bottom of the stacked area chart. In case of a special interest in just one of the associated term and its values, it is possible to click on the respective layer in order to create a new view, that features only the data for that special term.
+
+
+
+\section{Frameworks}
+
+\subsection{Graphic Frameworks}
+
+\myparagraph{D3}
+Our first approach was to select the D3 framework for our visualization. Therefore we had several reasons. D3 is a huge framework with a big scope of functionality. Its basic idea is to connect data and document to achieve interactivity. There are many examples on using D3 on the web and its documentation is well written. Also it provides functions to create transitions between different graphs in a very easy way. Furthermore the D3 framework is already included in the BlogIntelligence project where our application is to be embedded in. Thus, we decided to use it.
+
+Despite all the pros of D3 we encountered a few difficulties when working with it. Sometimes D3 expects the data to have a specific hierarchy or to be normalized in terms of a particular domain. Unfortunately those expectations are often not part of the documentation and you have to find them out experimentally. Moreover some configurations for graphical effects do not work with some features of our data which was not easy to detect as well.
+
+\myparagraph{NVD3}
+Our second approach to create the graph was based on NVD3. This is a framework which creates charts using d3. So it is basically a framework for what we tried to do on our own with our first approach. It enables you to draw various charts, including line, bar, pie charts as well as streamgraphs, with only few message calls. Furthermore it eases the process of creating axes and scales for the graphs.
+
+
+\subsection{Other Frameworks}
+
+\myparagraph{JQuery}
+JQuery is used to simplify the interaction with the DOM and to provide useful tools for event handling, animations and Ajax requests. Because of its low level functionality it sets the foundation for many other libraries and frameworks. E.g. We used two more packages which depend on jQuery.
+Additionally jQuery improves the browser compatibility of our app as it includes shims and polyfills to compensate for lacking functionality of the browser and to provide a more unified API to the developer.
+
+\myparagraph{NoUiSlider}
+One of the jQuery dependent libraries is noUiSlider. It provides a simplistic, easy to integrate and touch friendly range slider and is used to enable the user to narrow down the timespan of the visualization.
+
+\myparagraph{Bootstrap}
+The second one is bootstrap. In comparison to the other packages it is not a pure javascript framework but a UI framework which consists of reusable HTML and CSS components to simplify the creation of well structured, responsive and good-looking websites.
+
+\myparagraph{Fakesome}
+On the server-side we needed a framework which helped us to generate random but structured data to test our visualizations. We decided to use the self-developed library fakesome. This helped us to be able to easily set up the server for the test data and to adapt it to our needs
+
+\myparagraph{Bower \& Npm}
+In order to manage all those dependencies we used the node package manager (npm) for the back-end packages and bower for the front-end packages. Both tools support a simple configuration with a JSON file called package.json and bower.json respectively. Those files contain the list of development and production dependencies, which can be easily installed with the npm and bower command line tools.
+This made it especially easy to update, to install and in general to keep track of all our modules.
+
+
+
+\section{Technology}
+
+\subsection{SAP Hana and XSEngine}
+As mentioned in Section 3 our data is stored in a SAP Hana database. Furthermore we already brought up, that the amount of it is huge. Thus, we need to specify parameters and extract significant parts of it. This is done by an XSEngine script, which is basically a JavaScript file with connection to the database. It queries the most significant similar terms to the given search term and computes those term\grq s frequencies in posts for each day in the assigned time interval. The results are transmitted as a JSON file.
+
+\subsection{Server}
+Moreover our environment includes a server. The server\grq s main task is to forward the query from the application to the XSEngine script. When it receives the resulting data it also has to add \grqq null-values\grqq  to the data for consistency and to avoid artifacts in the rendering process. Following it passes the resulting data structure on to the application.
+
+\subsection{The application}
+The main application is an HTML 5 page formatted with CSS. On the top it contains an input field where you can type in a term to search for. A scrollbar to define the desired time interval can be found on the bottom. If either one's value is changed a request including the parameters is send to the server. After receiving the data from our server asynchronously via Ajax the visualization is created by a JavaScript and appended to the HTML document. Therefore the graph is rendered as a Scalable Vector Graphic (SVG). Since we came up with two different approaches for creating the graph we decided to implement both in different tabs.
+
+% \subsubsection{Pre-Rendering}
+% In preparation to rendering the graph in either way some steps have to be taken. 
+
+%\subsubsection{Rendering}
+\myparagraph{D3}
+In preparation to rendering the graph each layer has to be assigned a color. Therefore we define a static array of colors which will be used and connect colors and streams respectively.
+The rendering process is similar to the example of Mike Bostock on Streamgraphs with D3 \todo{reference}. First we create an SVG container. Then we use the D3 function  ``append('path')'' to create path segments for each layer. Therefore we just pass our data to the function. Subsequently we define an onclick function to create a popup which provides additional information to the user e.g. term name or date.
+
+Once the graph has already been rendered the updating process is even easier than the initial rendering. In order to achieve a fluent transition between the old and the graph we select the old streamgraph by its id, then call the d3 function \grqq transition()\grqq  on it and pass the new data along. Additionally we can define a duration for the transition animation. We choose a duration of half a second which gives as a smooth but immediate transition. The result is shown in the figure below.
+
+
+\myparagraph{NVD3}
+In order to define a color for a stream we use the by D3 provided function ``d3.scale.category20()'' which returns a color if we pass the key of a layer as parameter.
+Afterwards we use the by nvd3 provided function ``addgraph'' to render the graph. In addition we add an x- and y-axis to improve the readability. At the end we add the SVG to our HTML document.
+The updating process is performed analogue to the approach using D3.
+This approach has some advantages to the first. First it natively provides a popup, so that we don't have to define that by ourselves. As well it creates so called ``guidelines'' on mouse hover. This lines increase the readability of the graph significantly. Moreover it implements a legend for the labels showing the term names for each color and applies an appropriate scale natively. By clicking on a specific stream the graph is recreated only containing this particular stream to be examined further.
+
+\begin{figure}
+	\subfigure[D3]{\includegraphics[width=0.48\textwidth]{streamgraphd3.png}}		\subfigure[NVD3]{\includegraphics[width=0.48\textwidth]{streamgraphnvd3.png}}
+    \caption{A streamgraph for the term ``Microsoft'' rendered with(a) D3, (b) NVD3}
+\end{figure}
+
+%\subsubsection{Adjustment possibilities}
+
+%\section{Related Work}
+%- as described by mike bostock
+%- abgrenzung
+
+\section{Conclusion}
+Our requirements 
+
+- data is displayable with this visualization type
+- frameworks were helpful tools
+- was an appropriate decision
+- the layout works perfectly to find peaks and stuff
+- diagram itself aesthetically appealing 
+- we achieved interactivity 
+- you would need more visualizations too understand the data deeply
+
+\section{Outlook}
+In future work on this field could focus on the applicability of this approach for different data e.g. tfidf-values.
+Furthermore the colors of the individual streams could be used to encode more information. For example the shading could be influenced by the connotation to the search term.
+Moreover the performance of the application could be increased. The rendering and requesting process often some time for large time intervals. One approach to improve that would be to adjust the data format from server or XSEngine to the one needed for the rendering process. Thus we could save time because we don't need to adjust it for rendering the data.
+To increase the readability of our visualization it would also be helpful to improve the labeling. Therefore labels could be printed directly into the specific stream.
+
+\section{References}
+wikipedia
+mike bostock
+leebyron
+
+
+\end{document}
